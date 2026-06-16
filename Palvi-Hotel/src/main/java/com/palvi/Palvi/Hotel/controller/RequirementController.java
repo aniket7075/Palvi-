@@ -22,7 +22,7 @@ public class RequirementController {
     private RequirementService requirementService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Create Requirement", description = "Logs a draft requirement item for kitchen replenishment.")
     public ResponseEntity<DailyRequirementDto> createRequirement(@Valid @RequestBody DailyRequirementDto dto) {
         DailyRequirementDto created = requirementService.createRequirement(dto);
@@ -30,14 +30,14 @@ public class RequirementController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get All Requirements", description = "Retrieves a listing of all recorded daily requirements.")
     public ResponseEntity<List<DailyRequirementDto>> getAllRequirements() {
         return ResponseEntity.ok(requirementService.getAllRequirements());
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Update Requirement Item", description = "Modifies quantity or date for a requirement.")
     public ResponseEntity<DailyRequirementDto> updateRequirement(
             @PathVariable Long id, @Valid @RequestBody DailyRequirementDto dto) {
@@ -45,7 +45,7 @@ public class RequirementController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Delete Requirement Item", description = "Removes an item from the requirements list.")
     public ResponseEntity<Void> deleteRequirement(@PathVariable Long id) {
         requirementService.deleteRequirement(id);

@@ -22,7 +22,7 @@ public class InventoryController {
     private InventoryService inventoryService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Create Inventory Item", description = "Adds a new raw material/ingredient to the stock list.")
     public ResponseEntity<InventoryDto> createInventory(@Valid @RequestBody InventoryDto dto) {
         InventoryDto created = inventoryService.createInventory(dto);
@@ -30,21 +30,21 @@ public class InventoryController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get All Inventory Items", description = "Retrieves status of all items in inventory.")
     public ResponseEntity<List<InventoryDto>> getAllInventory() {
         return ResponseEntity.ok(inventoryService.getAllInventory());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get Inventory Item by ID", description = "Retrieves inventory item details.")
     public ResponseEntity<InventoryDto> getInventoryById(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryService.getInventoryById(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Update Inventory Item", description = "Updates pricing, safety levels, and quantities.")
     public ResponseEntity<InventoryDto> updateInventory(@PathVariable Long id, @Valid @RequestBody InventoryDto dto) {
         return ResponseEntity.ok(inventoryService.updateInventory(id, dto));
@@ -59,14 +59,14 @@ public class InventoryController {
     }
 
     @GetMapping("/low-stock")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get Low Stock Items", description = "Retrieves list of items where current stock <= minimum stock limits.")
     public ResponseEntity<List<InventoryDto>> getLowStockItems() {
         return ResponseEntity.ok(inventoryService.getLowStockItems());
     }
 
     @PatchMapping("/{id}/quantity")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Update Inventory Quantity", description = "Increments or decrements the current stock of an inventory item.")
     public ResponseEntity<InventoryDto> updateQuantity(
             @PathVariable Long id,

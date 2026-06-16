@@ -135,19 +135,26 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
     }
   };
 
+  const getDashboardScreen = () => {
+    if (role === 'ADMIN') return 'AdminDashboard';
+    if (role === 'INVENTORY_MANAGER') return 'GodownDispatchScreen';
+    return 'ManagerDashboard'; // Manager & Franchisee
+  };
+
   const menuItems = [
-    { text: t('menuDashboard'), screen: role === 'ADMIN' ? 'AdminDashboard' : 'ManagerDashboard', icon: 'dashboard', adminOnly: false },
-    { text: t('menuOutlets'), screen: 'Outlets', icon: 'outlet', adminOnly: true },
-    { text: t('menuManagers'), screen: 'Managers', icon: 'manager', adminOnly: true },
-    { text: t('menuStaff'), screen: 'Staff', icon: 'staff', adminOnly: false },
-    { text: t('menuVendors'), screen: 'Vendors', icon: 'supplier', adminOnly: false },
-    { text: t('menuPurchases'), screen: 'Purchases', icon: 'purchase', adminOnly: false },
-    { text: t('menuExpenses'), screen: 'Expenses', icon: 'expense', adminOnly: false },
-    { text: t('menuSales'), screen: 'Sales', icon: 'sales', adminOnly: false },
-    { text: t('menuOrders'), screen: 'VendorOrders', icon: 'clipboard', adminOnly: false },
-    { text: t('menuReports'), screen: 'Reports', icon: 'reports', adminOnly: false },
-    { text: t('menuNotifications'), screen: 'Notifications', icon: 'alert', badge: unreadAlerts, adminOnly: false },
-    { text: t('menuProfile'), screen: 'Profile', icon: 'profile', adminOnly: false },
+    { text: t('menuDashboard'), screen: getDashboardScreen(), icon: 'dashboard', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
+    { text: t('menuOutlets'), screen: 'Outlets', icon: 'outlet', allowedRoles: ['ADMIN'] },
+    { text: t('menuManagers'), screen: 'Managers', icon: 'manager', allowedRoles: ['ADMIN'] },
+    { text: t('menuStaff'), screen: 'Staff', icon: 'staff', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuVendors'), screen: 'Vendors', icon: 'supplier', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuPurchases'), screen: 'Purchases', icon: 'purchase', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuExpenses'), screen: 'Expenses', icon: 'expense', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuSales'), screen: 'Sales', icon: 'sales', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuOrders'), screen: 'VendorOrders', icon: 'clipboard', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
+    { text: 'Inventory Stock', screen: 'Inventory', icon: 'inventory', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
+    { text: t('menuReports'), screen: 'Reports', icon: 'reports', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuNotifications'), screen: 'Notifications', icon: 'alert', badge: unreadAlerts, allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
+    { text: t('menuProfile'), screen: 'Profile', icon: 'profile', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
   ];
 
   return (
@@ -250,7 +257,7 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
             {/* Menu List */}
             <ScrollView style={styles.drawerScrollView} contentContainerStyle={styles.drawerScrollContent}>
               {menuItems.map((item) => {
-                if (item.adminOnly && role !== 'ADMIN') return null;
+                if (!item.allowedRoles.includes(role)) return null;
                 const isActive = route.name === item.screen;
                 return (
                   <TouchableOpacity

@@ -22,7 +22,7 @@ public class PurchaseController {
     private PurchaseService purchaseService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Log Purchase", description = "Creates a new purchase record and increments targeted stock items quantity automatically")
     public ResponseEntity<PurchaseDto> createPurchase(@Valid @RequestBody PurchaseDto dto) {
         PurchaseDto created = purchaseService.createPurchase(dto);
@@ -30,21 +30,21 @@ public class PurchaseController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get All Purchase Records", description = "Lists all purchase logs in details.")
     public ResponseEntity<List<PurchaseDto>> getAllPurchases() {
         return ResponseEntity.ok(purchaseService.getAllPurchases());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get Purchase by ID", description = "Retrieves details of a purchase record.")
     public ResponseEntity<PurchaseDto> getPurchaseById(@PathVariable Long id) {
         return ResponseEntity.ok(purchaseService.getPurchaseById(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Update Purchase Record", description = "Updates a purchase record, adjusting stocks accordingly.")
     public ResponseEntity<PurchaseDto> updatePurchase(@PathVariable Long id, @Valid @RequestBody PurchaseDto dto) {
         return ResponseEntity.ok(purchaseService.updatePurchase(id, dto));

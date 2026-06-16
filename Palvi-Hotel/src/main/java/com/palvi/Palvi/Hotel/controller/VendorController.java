@@ -27,7 +27,7 @@ public class VendorController {
     private PurchaseRepository purchaseRepository;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Create Vendor Profile", description = "Adds a supplier directory item.")
     public ResponseEntity<VendorDto> createVendor(@Valid @RequestBody VendorDto dto) {
         VendorDto created = vendorService.createVendor(dto);
@@ -35,21 +35,21 @@ public class VendorController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get All Vendors", description = "Retrieves active vendors list.")
     public ResponseEntity<List<VendorDto>> getAllVendors(@RequestParam(required = false) Long outletId) {
         return ResponseEntity.ok(vendorService.getAllVendors(outletId));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get Vendor by ID", description = "Retrieves a vendor by primary key.")
     public ResponseEntity<VendorDto> getVendorById(@PathVariable Long id) {
         return ResponseEntity.ok(vendorService.getVendorById(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Update Vendor Details", description = "Modifies WhatsApp contact or address details for a supplier.")
     public ResponseEntity<VendorDto> updateVendor(@PathVariable Long id, @Valid @RequestBody VendorDto dto) {
         return ResponseEntity.ok(vendorService.updateVendor(id, dto));
@@ -64,7 +64,7 @@ public class VendorController {
     }
 
     @PostMapping("/{id}/settle")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Settle Vendor Bill", description = "Marks all unpaid purchases for a vendor as paid.")
     public ResponseEntity<Void> settleVendorBill(@PathVariable Long id) {
         List<Purchase> unpaidPurchases = purchaseRepository.findByVendorIdAndIsPaidFalse(id);

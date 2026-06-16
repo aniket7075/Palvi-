@@ -24,7 +24,7 @@ public class ChecklistController {
     private ChecklistService checklistService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Create Checklist Task", description = "Adds a checklist task for an outlet.")
     public ResponseEntity<ChecklistDto> createChecklist(@Valid @RequestBody ChecklistDto dto) {
         ChecklistDto created = checklistService.createChecklist(dto);
@@ -32,28 +32,28 @@ public class ChecklistController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get All Checklist Tasks", description = "Retrieves all checklist records.")
     public ResponseEntity<List<ChecklistDto>> getAllChecklists() {
         return ResponseEntity.ok(checklistService.getAllChecklists());
     }
 
     @PutMapping("/{id}/toggle")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Toggle Checklist Completion", description = "Flips the completed boolean status of a checklist item")
     public ResponseEntity<ChecklistDto> toggleChecklist(@PathVariable Long id) {
         return ResponseEntity.ok(checklistService.toggleChecklist(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Update Checklist Task", description = "Modifies checklist details.")
     public ResponseEntity<ChecklistDto> updateChecklist(@PathVariable Long id, @Valid @RequestBody ChecklistDto dto) {
         return ResponseEntity.ok(checklistService.updateChecklist(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Delete Checklist Task", description = "Removes a checklist item.")
     public ResponseEntity<Void> deleteChecklist(@PathVariable Long id) {
         checklistService.deleteChecklist(id);
@@ -61,7 +61,7 @@ public class ChecklistController {
     }
 
     @GetMapping("/outlet/{outletId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get Outlet Daily Checklist", description = "Retrieves checklist status for a branch and date (defaults to today)")
     public ResponseEntity<List<ChecklistDto>> getOutletDailyChecklist(
             @PathVariable Long outletId,

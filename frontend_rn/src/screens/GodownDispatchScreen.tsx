@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { SafeAreaView } from 'react-native-safe-area-context';
-// @ts-ignore
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '../components/Icon';
 import { stateService } from '../services/stateService';
 import { useLanguage } from '../i18n/LanguageContext';
+import LayoutWrapper from '../components/LayoutWrapper';
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -84,92 +83,137 @@ export default function GodownDispatchScreen({ route }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Godown Dispatch</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Icon name="log-out" size={24} color="#333" />
-        </TouchableOpacity>
+    <LayoutWrapper title="Godown Inventory">
+      {/* Premium Godown Header */}
+      <View style={styles.branchHeader}>
+        <View style={styles.headerContent}>
+          <Text style={styles.branchTitle}>Central Godown</Text>
+          <Text style={styles.branchSubtitle}>Manage dispatches and distribute inventory securely.</Text>
+        </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <Text style={styles.label}>Select Outlet</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.outletScroll}>
-          {outlets.map(o => (
-            <TouchableOpacity 
-              key={o.id} 
-              style={[styles.outletChip, selectedOutlet === o.id && styles.outletChipSelected]}
-              onPress={() => setSelectedOutlet(o.id)}
-            >
-              <Text style={[styles.outletChipText, selectedOutlet === o.id && styles.outletChipTextSelected]}>
-                {o.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        
+        {/* Step 1: Select Outlet */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Icon name="outlet" color="#146e4e" size={20} />
+            <Text style={styles.cardTitle}>1. Select Target Outlet</Text>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.outletScroll}>
+            {outlets.map(o => (
+              <TouchableOpacity 
+                key={o.id} 
+                style={[styles.outletChip, selectedOutlet === o.id && styles.outletChipSelected]}
+                onPress={() => setSelectedOutlet(o.id)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.outletChipText, selectedOutlet === o.id && styles.outletChipTextSelected]}>
+                  {o.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-        <Text style={styles.label}>Add Items</Text>
-        <View style={styles.addForm}>
-          <TextInput
-            style={[styles.input, { flex: 2 }]}
-            placeholder="Item Name"
-            value={newItemName}
-            onChangeText={setNewItemName}
-          />
-          <TextInput
-            style={[styles.input, { flex: 1, marginHorizontal: 8 }]}
-            placeholder="Qty"
-            keyboardType="numeric"
-            value={newQuantity}
-            onChangeText={setNewQuantity}
-          />
-          <TextInput
-            style={[styles.input, { flex: 1, marginRight: 8 }]}
-            placeholder="Unit"
-            value={newUnit}
-            onChangeText={setNewUnit}
-          />
-          <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-            <Icon name="plus" size={20} color="#fff" />
+        {/* Step 2: Add Items */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Icon name="inventory" color="#146e4e" size={20} />
+            <Text style={styles.cardTitle}>2. Add Items to Dispatch</Text>
+          </View>
+          <View style={styles.addForm}>
+            <TextInput
+              style={[styles.input, { flex: 2 }]}
+              placeholder="Item Name (e.g. Sugar)"
+              placeholderTextColor="#8c6e65"
+              value={newItemName}
+              onChangeText={setNewItemName}
+            />
+            <TextInput
+              style={[styles.input, { flex: 1, marginHorizontal: 8 }]}
+              placeholder="Qty"
+              placeholderTextColor="#8c6e65"
+              keyboardType="numeric"
+              value={newQuantity}
+              onChangeText={setNewQuantity}
+            />
+            <TextInput
+              style={[styles.input, { flex: 1, marginRight: 8 }]}
+              placeholder="Unit"
+              placeholderTextColor="#8c6e65"
+              value={newUnit}
+              onChangeText={setNewUnit}
+            />
+            <TouchableOpacity style={styles.addButton} onPress={handleAddItem} activeOpacity={0.8}>
+              <Icon name="plus" size={22} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Current Cart */}
+          <View style={styles.listContainer}>
+            <Text style={styles.listHeader}>Current Dispatch Cart</Text>
+            {items.length === 0 ? (
+              <View style={styles.emptyCartContainer}>
+                <Icon name="inventory" size={30} color="#ebdcd3" />
+                <Text style={styles.emptyText}>No items added yet</Text>
+              </View>
+            ) : (
+              items.map((item, index) => (
+                <View key={index} style={styles.listItem}>
+                  <View style={styles.itemInfo}>
+                    <Text style={styles.itemName}>{item.itemName}</Text>
+                    <Text style={styles.itemQty}>{item.quantity} {item.unit}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.deleteBtn} onPress={() => handleRemoveItem(index)}>
+                    <Icon name="trash-2" size={18} color="#d32f2f" />
+                  </TouchableOpacity>
+                </View>
+              ))
+            )}
+          </View>
+
+          <TouchableOpacity 
+            style={[styles.submitButton, (!selectedOutlet || items.length === 0) && styles.submitButtonDisabled]} 
+            onPress={handleSubmit}
+            activeOpacity={0.8}
+            disabled={!selectedOutlet || items.length === 0}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="reports" color="#fff" size={20} />
+              <Text style={styles.submitButtonText}>Send Dispatch</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.listContainer}>
-          <Text style={styles.listHeader}>Items to Dispatch</Text>
-          {items.map((item, index) => (
-            <View key={index} style={styles.listItem}>
-              <Text style={styles.itemName}>{item.itemName}</Text>
-              <Text style={styles.itemQty}>{item.quantity} {item.unit}</Text>
-              <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                <Icon name="trash-2" size={20} color="#e74c3c" />
-              </TouchableOpacity>
-            </View>
-          ))}
-          {items.length === 0 && (
-            <Text style={styles.emptyText}>No items added yet</Text>
-          )}
-        </View>
-
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Send Dispatch</Text>
-        </TouchableOpacity>
-
         {/* History Section */}
         <View style={styles.historyContainer}>
-          <Text style={styles.listHeader}>Recent Dispatches Record</Text>
+          <Text style={styles.sectionTitle}>Recent Dispatches Record</Text>
           {history.length > 0 ? (
             history.map((dispatch: any) => {
               const targetOutlet = outlets.find(o => o.id === dispatch.targetOutletId);
+              const isDispatched = dispatch.status === 'DISPATCHED';
+              
               return (
                 <View key={dispatch.id} style={styles.historyCard}>
                   <View style={styles.historyHeader}>
-                    <Text style={styles.historyOutletName}>To: {targetOutlet ? targetOutlet.name : 'Unknown Outlet'}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <View style={styles.historyIconWrapper}>
+                        <Icon name="outlet" size={16} color="#146e4e" />
+                      </View>
+                      <Text style={styles.historyOutletName}>{targetOutlet ? targetOutlet.name : 'Unknown Outlet'}</Text>
+                    </View>
                     <Text style={styles.historyDate}>{new Date(dispatch.dispatchDate).toLocaleDateString()}</Text>
                   </View>
-                  <Text style={styles.historyStatus}>Status: {dispatch.status}</Text>
+                  
+                  <View style={styles.historyStatusRow}>
+                    <Text style={styles.historyStatusLabel}>Status:</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: isDispatched ? '#fff3e0' : '#e8f5e9' }]}>
+                      <Text style={[styles.statusBadgeText, { color: isDispatched ? '#e65100' : '#2e7d32' }]}>
+                        {dispatch.status}
+                      </Text>
+                    </View>
+                  </View>
                   
                   <View style={styles.historyItemsContainer}>
                     {dispatch.items && dispatch.items.map((item: any, i: number) => (
@@ -187,173 +231,266 @@ export default function GodownDispatchScreen({ route }: any) {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </LayoutWrapper>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fbf8f3',
+    backgroundColor: '#f4f6f8',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  branchHeader: {
+    backgroundColor: '#146e4e',
+    paddingTop: 30,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: -10,
+    shadowColor: '#146e4e',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+    zIndex: 10,
+  },
+  headerContent: {
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+  branchTitle: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#ffffff',
+    marginBottom: 4,
   },
-  content: {
-    padding: 16,
+  branchSubtitle: {
+    fontSize: 13,
+    color: '#e8f5e9',
+    fontWeight: '500',
   },
-  label: {
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  cardTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-    marginTop: 16,
+    fontWeight: '800',
+    color: '#1a1a1a',
   },
   outletScroll: {
     flexDirection: 'row',
-    marginBottom: 8,
   },
   outletChip: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    marginRight: 8,
+    paddingVertical: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    marginRight: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#eee',
   },
   outletChipSelected: {
-    backgroundColor: '#704235',
-    borderColor: '#704235',
+    backgroundColor: '#146e4e',
+    borderColor: '#146e4e',
   },
   outletChipText: {
-    color: '#666',
-    fontWeight: '600',
+    color: '#757575',
+    fontWeight: '700',
+    fontSize: 13,
   },
   outletChipTextSelected: {
-    color: '#fff',
+    color: '#ffffff',
   },
   addForm: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f9f9',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: '#eee',
+    borderRadius: 12,
     padding: 12,
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
   addButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#10b981',
     width: 48,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   listContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: '#fcfcfc',
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#f0f0f0',
   },
   listHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '800',
     marginBottom: 12,
     color: '#333',
+  },
+  emptyCartContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
   },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
+  itemInfo: {
+    flex: 1,
+  },
   itemName: {
-    flex: 2,
     fontSize: 15,
-    color: '#333',
+    fontWeight: '700',
+    color: '#1a1a1a',
   },
   itemQty: {
-    flex: 1,
-    fontSize: 15,
-    color: '#666',
+    fontSize: 13,
+    color: '#8c6e65',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  deleteBtn: {
+    padding: 8,
+    backgroundColor: '#ffebee',
+    borderRadius: 8,
   },
   emptyText: {
     textAlign: 'center',
     color: '#999',
     fontStyle: 'italic',
-    padding: 16,
+    paddingTop: 8,
   },
   submitButton: {
-    backgroundColor: '#704235',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: '#146e4e',
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: 'center',
-    marginBottom: 40,
+    elevation: 4,
+    shadowColor: '#146e4e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#a5d6a7',
+    elevation: 0,
   },
   submitButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    marginLeft: 8,
   },
   historyContainer: {
-    marginTop: 20,
-    marginBottom: 40,
+    marginTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1a1a1a',
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
   historyCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#eee',
+    marginBottom: 16,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: '#f5f5f5',
   },
   historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  historyIconWrapper: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#e8f5e9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   historyOutletName: {
     fontSize: 15,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '800',
+    color: '#1a1a1a',
   },
   historyDate: {
-    fontSize: 13,
-    color: '#888',
-  },
-  historyStatus: {
-    fontSize: 13,
-    color: '#146e4e',
+    fontSize: 12,
     fontWeight: '600',
+    color: '#8c6e65',
+  },
+  historyStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 12,
+  },
+  historyStatusLabel: {
+    fontSize: 13,
+    color: '#757575',
+    marginRight: 8,
+    fontWeight: '600',
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
   },
   historyItemsContainer: {
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
-    paddingTop: 8,
+    paddingTop: 12,
   },
   historyItemRow: {
     flexDirection: 'row',
@@ -361,12 +498,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   historyItemName: {
-    fontSize: 14,
-    color: '#444',
+    fontSize: 13,
+    color: '#424242',
+    fontWeight: '500',
   },
   historyItemQty: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#146e4e',
   },
 });

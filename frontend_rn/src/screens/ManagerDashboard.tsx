@@ -27,12 +27,14 @@ export default function ManagerDashboard({ navigation }: Props) {
   const [incomingDispatches, setIncomingDispatches] = useState<any[]>([]);
   const [outletId, setOutletId] = useState<string | null>(null);
   const [outletName, setOutletName] = useState('My Outlet');
+  const [role, setRole] = useState('MANAGER');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       const storedOutletId = await AsyncStorage.getItem('outletId');
       const storedOutletName = await AsyncStorage.getItem('outletName');
+      const storedRole = await AsyncStorage.getItem('role');
       
       if (!storedOutletId) {
         setLoading(false);
@@ -41,6 +43,7 @@ export default function ManagerDashboard({ navigation }: Props) {
 
       setOutletId(storedOutletId);
       if (storedOutletName) setOutletName(storedOutletName);
+      if (storedRole) setRole(storedRole);
 
       const data = stateService.getOutletDashboardMetrics(storedOutletId);
       setMetrics(data);
@@ -102,7 +105,11 @@ export default function ManagerDashboard({ navigation }: Props) {
       <View style={styles.branchHeader}>
         <View style={styles.headerContent}>
           <Text style={styles.branchTitle}>{outletName}</Text>
-          <Text style={styles.branchSubtitle}>Daily operations and audits overview.</Text>
+          <Text style={styles.branchSubtitle}>
+            {role === 'FRANCHISEE' 
+              ? 'Franchise Performance & Branch Overview'
+              : 'Daily operations and audits overview'}
+          </Text>
         </View>
       </View>
 
@@ -144,27 +151,27 @@ export default function ManagerDashboard({ navigation }: Props) {
         {/* Quick Actions */}
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.quickActionsGrid}>
-          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Sales')}>
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Sales')}>
             <View style={[styles.actionIconBg, { backgroundColor: '#e8f5e9' }]}>
-              <Icon name="sales" color="#2e7d32" size={24} />
+              <Icon name="sales" color="#146e4e" size={24} />
             </View>
             <Text style={styles.actionText}>Sales</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Expenses')}>
-            <View style={[styles.actionIconBg, { backgroundColor: '#ffebee' }]}>
-              <Icon name="cash" color="#c62828" size={24} />
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Expenses')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#fcf4f0' }]}>
+              <Icon name="cash" color="#8c6e65" size={24} />
             </View>
             <Text style={styles.actionText}>Expenses</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Staff')}>
-            <View style={[styles.actionIconBg, { backgroundColor: '#e3f2fd' }]}>
-              <Icon name="staff" color="#1565c0" size={24} />
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Staff')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#e8f5e9' }]}>
+              <Icon name="staff" color="#146e4e" size={24} />
             </View>
             <Text style={styles.actionText}>Staff</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Checklist')}>
-            <View style={[styles.actionIconBg, { backgroundColor: '#fff3e0' }]}>
-              <Icon name="checklist" color="#e65100" size={24} />
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Checklist')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#fcf4f0' }]}>
+              <Icon name="checklist" color="#8c6e65" size={24} />
             </View>
             <Text style={styles.actionText}>Checklist</Text>
           </TouchableOpacity>
@@ -188,11 +195,11 @@ export default function ManagerDashboard({ navigation }: Props) {
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.rowAlign}>
-              <Icon name="alert" color="#d32f2f" size={18} />
+              <Icon name="alert" color="#8c6e65" size={18} />
               <Text style={styles.cardTitle}>Low Stock Warnings</Text>
             </View>
-            <View style={[styles.badge, { backgroundColor: lowStock.length > 0 ? '#ffebee' : '#e8f5e9' }]}>
-              <Text style={[styles.badgeText, { color: lowStock.length > 0 ? '#c62828' : '#2e7d32' }]}>
+            <View style={[styles.badge, { backgroundColor: lowStock.length > 0 ? '#fcf4f0' : '#e8f5e9' }]}>
+              <Text style={[styles.badgeText, { color: lowStock.length > 0 ? '#8c6e65' : '#146e4e' }]}>
                 {lowStock.length > 0 ? `${lowStock.length} Items` : 'All Stock OK'}
               </Text>
             </View>
@@ -231,7 +238,7 @@ export default function ManagerDashboard({ navigation }: Props) {
           <View style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <View style={styles.rowAlign}>
-                <Icon name="inventory" color="#1976d2" size={18} />
+                <Icon name="inventory" color="#146e4e" size={18} />
                 <Text style={styles.cardTitle}>Incoming Godown Dispatches</Text>
               </View>
             </View>
@@ -245,6 +252,7 @@ export default function ManagerDashboard({ navigation }: Props) {
                   </View>
                   <TouchableOpacity 
                     style={styles.receiveButton}
+                    activeOpacity={0.8}
                     onPress={() => handleMarkReceived(dispatch.id)}
                   >
                     <Text style={styles.receiveButtonText}>Receive</Text>
@@ -348,15 +356,15 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
   },
   eodButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#146e4e',
     paddingVertical: 16,
     borderRadius: 16,
     marginBottom: 24,
-    elevation: 6,
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+    shadowColor: '#146e4e',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowRadius: 8,
   },
   eodButtonText: {
     color: '#fff',
@@ -450,7 +458,7 @@ const styles = StyleSheet.create({
   actionLinkText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1976d2',
+    color: '#8c6e65',
   },
   badge: {
     paddingHorizontal: 10,
@@ -502,7 +510,7 @@ const styles = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   receiveButton: {
-    backgroundColor: '#1976d2',
+    backgroundColor: '#146e4e',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
