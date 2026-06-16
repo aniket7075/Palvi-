@@ -58,6 +58,13 @@ export const initializeState = async () => {
     }
   }
 
+  isInitialized = true;
+
+  // Run background sync without blocking app load
+  syncFromBackendAsync();
+};
+
+const syncFromBackendAsync = async () => {
   // Fetch fresh data from backend
   try {
     const token = await AsyncStorage.getItem('token');
@@ -262,8 +269,6 @@ export const initializeState = async () => {
   } catch (err) {
     console.error('Failed to sync state from Spring Boot backend:', err);
   }
-
-  isInitialized = true;
 };
 
 // Synchronous memory operations

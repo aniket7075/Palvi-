@@ -162,6 +162,10 @@ export default function Vendors() {
     );
   };
 
+  const handleUploadBill = (vendorId: number) => {
+    Linking.openURL(`https://palvi.onrender.com/vendor-upload?vendorId=${vendorId}`);
+  };
+
   return (
     <LayoutWrapper title={t('supplierDirectory')}>
       <View style={styles.mainContainer}>
@@ -212,6 +216,11 @@ export default function Vendors() {
                         <TouchableOpacity onPress={() => handleWhatsApp(v.whatsappNumber)} style={[styles.waBtn, { flexDirection: 'row', alignItems: 'center' }]}>
                           <Icon name="chat" color="#25D366" size={14} />
                           <Text style={[styles.waBtnText, { marginLeft: 4 }]}>{t('whatsapp')}</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => handleUploadBill(v.id)} style={[styles.actionBtn, { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e8f5e9' }]}>
+                          <Icon name="upload" color="#146e4e" size={14} />
+                          <Text style={[styles.actionBtnText, { marginLeft: 4, color: '#146e4e' }]}>Upload Bill</Text>
                         </TouchableOpacity>
                       </View>
                       {vendorLedgers[v.id]?.totalDue > 0 && (
@@ -499,7 +508,7 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 90,
     right: 16,
     backgroundColor: '#146e4e',
     paddingHorizontal: 20,

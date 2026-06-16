@@ -25,7 +25,7 @@ export default function VendorBills() {
     setIsAdmin(role === 'ADMIN');
     
     // Sync state to get latest bills
-    await stateService.initializeState(); 
+    // Sync state to get latest bills
     const fetchedBills = stateService.getVendorBills();
     setBills(fetchedBills);
     setLoading(false);
@@ -36,16 +36,6 @@ export default function VendorBills() {
       <LayoutWrapper title="Vendor Bills">
         <View style={styles.centeredContainer}>
           <ActivityIndicator size="large" color="#146e4e" />
-        </View>
-      </LayoutWrapper>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <LayoutWrapper title="Vendor Bills">
-        <View style={styles.centeredContainer}>
-          <Text style={styles.noAccessText}>Only Admins can view vendor bills.</Text>
         </View>
       </LayoutWrapper>
     );

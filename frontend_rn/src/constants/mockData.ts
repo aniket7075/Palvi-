@@ -5,7 +5,8 @@ export const INITIAL_OUTLETS = [
 
 export const INITIAL_USERS = [
   { id: 1, email: "admin@gmail.com", fullName: "Palvi Admin", mobileNumber: "+91 9999999999", role: "ADMIN", password: "Admin@123", status: "ACTIVE", outletId: null },
-  { id: 2, email: "manager@gmail.com", fullName: "Rahul Deshmukh", mobileNumber: "+91 8888888888", role: "MANAGER", password: "Manager@123", status: "ACTIVE", outletId: 1 }
+  { id: 2, email: "manager@gmail.com", fullName: "Rahul Deshmukh", mobileNumber: "+91 8888888888", role: "MANAGER", password: "Manager@123", status: "ACTIVE", outletId: 1 },
+  { id: 3, email: "invmanager@gmail.com", fullName: "Godown Inventory", mobileNumber: "+91 7777777777", role: "INVENTORY_MANAGER", password: "Manager@123", status: "ACTIVE", outletId: 1 }
 ];
 
 export const INITIAL_STAFF = [

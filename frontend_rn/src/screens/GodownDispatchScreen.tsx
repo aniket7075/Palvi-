@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+// @ts-ignore
 import Icon from 'react-native-vector-icons/Feather';
 import { stateService } from '../services/stateService';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -20,13 +21,22 @@ export default function GodownDispatchScreen({ route }: any) {
   const [newItemName, setNewItemName] = useState('');
   const [newQuantity, setNewQuantity] = useState('');
   const [newUnit, setNewUnit] = useState('Kg');
+  const [history, setHistory] = useState<any[]>([]);
 
   const { user } = route?.params || {};
 
   useEffect(() => {
     const fetchedOutlets = stateService.getOutlets();
     setOutlets(fetchedOutlets);
+    loadHistory();
   }, []);
+
+  const loadHistory = () => {
+    const dispatches = stateService.getGodownDispatches();
+    // sort descending by date
+    dispatches.sort((a: any, b: any) => new Date(b.dispatchDate).getTime() - new Date(a.dispatchDate).getTime());
+    setHistory(dispatches);
+  };
 
   const handleAddItem = () => {
     if (!newItemName || !newQuantity) {
@@ -68,6 +78,9 @@ export default function GodownDispatchScreen({ route }: any) {
     Alert.alert('Success', 'Dispatch sent successfully');
     setItems([]);
     setSelectedOutlet(null);
+    setTimeout(() => {
+      loadHistory();
+    }, 500);
   };
 
   return (
@@ -143,6 +156,36 @@ export default function GodownDispatchScreen({ route }: any) {
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Send Dispatch</Text>
         </TouchableOpacity>
+
+        {/* History Section */}
+        <View style={styles.historyContainer}>
+          <Text style={styles.listHeader}>Recent Dispatches Record</Text>
+          {history.length > 0 ? (
+            history.map((dispatch: any) => {
+              const targetOutlet = outlets.find(o => o.id === dispatch.targetOutletId);
+              return (
+                <View key={dispatch.id} style={styles.historyCard}>
+                  <View style={styles.historyHeader}>
+                    <Text style={styles.historyOutletName}>To: {targetOutlet ? targetOutlet.name : 'Unknown Outlet'}</Text>
+                    <Text style={styles.historyDate}>{new Date(dispatch.dispatchDate).toLocaleDateString()}</Text>
+                  </View>
+                  <Text style={styles.historyStatus}>Status: {dispatch.status}</Text>
+                  
+                  <View style={styles.historyItemsContainer}>
+                    {dispatch.items && dispatch.items.map((item: any, i: number) => (
+                      <View key={i} style={styles.historyItemRow}>
+                        <Text style={styles.historyItemName}>• {item.itemName}</Text>
+                        <Text style={styles.historyItemQty}>{item.quantity} {item.unit}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              );
+            })
+          ) : (
+            <Text style={styles.emptyText}>No previous dispatches found.</Text>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -269,5 +312,61 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  historyContainer: {
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  historyCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#eee',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  historyOutletName: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  historyDate: {
+    fontSize: 13,
+    color: '#888',
+  },
+  historyStatus: {
+    fontSize: 13,
+    color: '#146e4e',
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  historyItemsContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    paddingTop: 8,
+  },
+  historyItemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  historyItemName: {
+    fontSize: 14,
+    color: '#444',
+  },
+  historyItemQty: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
   },
 });

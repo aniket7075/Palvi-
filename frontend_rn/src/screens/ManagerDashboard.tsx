@@ -98,71 +98,101 @@ export default function ManagerDashboard({ navigation }: Props) {
 
   return (
     <LayoutWrapper title="Manager Dashboard">
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {/* Branch Banner */}
-        <View style={styles.branchHeader}>
+      {/* Premium Branch Header */}
+      <View style={styles.branchHeader}>
+        <View style={styles.headerContent}>
           <Text style={styles.branchTitle}>{outletName}</Text>
-          <Text style={styles.branchSubtitle}>Daily operations and audits registry overview.</Text>
+          <Text style={styles.branchSubtitle}>Daily operations and audits overview.</Text>
         </View>
+      </View>
 
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        
         {/* KPI Row */}
         <View style={styles.kpiRow}>
           <View style={styles.kpiCard}>
-            <View style={{ marginBottom: 8 }}>
-              <Icon name="sales" color="#146e4e" size={22} />
+            <View style={styles.kpiIconWrapper}>
+              <Icon name="sales" color="#146e4e" size={20} />
             </View>
-            <Text style={styles.kpiLabel}>Today's Sales</Text>
             <Text style={styles.kpiValue}>₹{metrics?.todaySales?.toLocaleString('en-IN') || 0}</Text>
+            <Text style={styles.kpiLabel}>Today's Sales</Text>
           </View>
           <View style={styles.kpiCard}>
-            <View style={{ marginBottom: 8 }}>
-              <Icon name="checklist" color="#146e4e" size={22} />
+            <View style={[styles.kpiIconWrapper, { backgroundColor: '#fff3e0' }]}>
+              <Icon name="checklist" color="#e65100" size={20} />
             </View>
-            <Text style={styles.kpiLabel}>Checklist Tasks</Text>
             <Text style={styles.kpiValue}>{completedChecklist}/{totalChecklist}</Text>
+            <Text style={styles.kpiLabel}>Tasks Done</Text>
           </View>
         </View>
 
         {/* EOD Report Action */}
         <TouchableOpacity 
           style={styles.eodButton}
+          activeOpacity={0.8}
           onPress={() => {
             const todayStr = new Date().toISOString().split('T')[0];
             navigation.navigate('DailyReportScreen', { outletId: parseInt(outletId), date: todayStr });
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="reports" color="#fff" size={20} />
+            <Icon name="reports" color="#fff" size={22} />
             <Text style={styles.eodButtonText}>Generate Daily Report</Text>
           </View>
         </TouchableOpacity>
 
+        {/* Quick Actions */}
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={styles.quickActionsGrid}>
+          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Sales')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#e8f5e9' }]}>
+              <Icon name="sales" color="#2e7d32" size={24} />
+            </View>
+            <Text style={styles.actionText}>Sales</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Expenses')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#ffebee' }]}>
+              <Icon name="cash" color="#c62828" size={24} />
+            </View>
+            <Text style={styles.actionText}>Expenses</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Staff')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#e3f2fd' }]}>
+              <Icon name="staff" color="#1565c0" size={24} />
+            </View>
+            <Text style={styles.actionText}>Staff</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('Checklist')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#fff3e0' }]}>
+              <Icon name="checklist" color="#e65100" size={24} />
+            </View>
+            <Text style={styles.actionText}>Checklist</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Progress Card */}
         <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Checklist Progress</Text>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.rowAlign}>
+              <Icon name="checklist" color="#146e4e" size={18} />
+              <Text style={styles.cardTitle}>Checklist Progress</Text>
+            </View>
             <Text style={styles.cardTitleVal}>{checklistProgress}%</Text>
           </View>
           <View style={styles.progressBarBg}>
             <View style={[styles.progressBarFill, { width: `${checklistProgress}%` }]} />
           </View>
-          <TouchableOpacity
-            style={styles.actionLink}
-            onPress={() => navigation.navigate('Checklist')}
-          >
-            <Text style={styles.actionLinkText}>Verify Checklist Items →</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Low Stock Warning Card */}
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.rowAlign}>
-              <Icon name="alert" color="#0d4e37" size={18} />
+              <Icon name="alert" color="#d32f2f" size={18} />
               <Text style={styles.cardTitle}>Low Stock Warnings</Text>
             </View>
-            <View style={[styles.badge, { backgroundColor: lowStock.length > 0 ? '#f0fdf4' : '#f0fdf4', borderColor: lowStock.length > 0 ? '#bbf7d0' : '#bbf7d0', borderWidth: 1 }]}>
-              <Text style={[styles.badgeText, { color: lowStock.length > 0 ? '#0d4e37' : '#146e4e' }]}>
+            <View style={[styles.badge, { backgroundColor: lowStock.length > 0 ? '#ffebee' : '#e8f5e9' }]}>
+              <Text style={[styles.badgeText, { color: lowStock.length > 0 ? '#c62828' : '#2e7d32' }]}>
                 {lowStock.length > 0 ? `${lowStock.length} Items` : 'All Stock OK'}
               </Text>
             </View>
@@ -184,7 +214,7 @@ export default function ManagerDashboard({ navigation }: Props) {
             </View>
           ) : (
             <Text style={styles.emptyText}>
-              All kitchen and storage inventory raw ingredients are above minimum thresholds.
+              All inventory items are above minimum thresholds.
             </Text>
           )}
 
@@ -192,38 +222,38 @@ export default function ManagerDashboard({ navigation }: Props) {
             style={styles.actionLink}
             onPress={() => navigation.navigate('Inventory')}
           >
-            <Text style={styles.actionLinkText}>Update Storage Stock →</Text>
+            <Text style={styles.actionLinkText}>Update Stock →</Text>
           </TouchableOpacity>
         </View>
 
         {/* Incoming Dispatches Card */}
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.rowAlign}>
-              <Icon name="inventory" color="#0d4e37" size={18} />
-              <Text style={styles.cardTitle}>Incoming Dispatches</Text>
+        {incomingDispatches.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={styles.rowAlign}>
+                <Icon name="inventory" color="#1976d2" size={18} />
+                <Text style={styles.cardTitle}>Incoming Godown Dispatches</Text>
+              </View>
             </View>
-          </View>
-          
-          {incomingDispatches.length > 0 ? (
+            
             <View style={styles.listContainer}>
               {incomingDispatches.map((dispatch: any) => (
                 <View key={dispatch.id} style={styles.dispatchItem}>
-                  <Text style={styles.listItemTitle}>From Godown ({new Date(dispatch.dispatchDate).toLocaleDateString()})</Text>
-                  <Text style={styles.listItemDesc}>Items: {dispatch.items?.length || 0}</Text>
+                  <View>
+                    <Text style={styles.listItemTitle}>From Godown ({new Date(dispatch.dispatchDate).toLocaleDateString()})</Text>
+                    <Text style={styles.listItemDesc}>Items: {dispatch.items?.length || 0}</Text>
+                  </View>
                   <TouchableOpacity 
                     style={styles.receiveButton}
                     onPress={() => handleMarkReceived(dispatch.id)}
                   >
-                    <Text style={styles.receiveButtonText}>Mark Received</Text>
+                    <Text style={styles.receiveButtonText}>Receive</Text>
                   </TouchableOpacity>
                 </View>
               ))}
             </View>
-          ) : (
-            <Text style={styles.emptyText}>No incoming inventory transfers at this time.</Text>
-          )}
-        </View>
+          </View>
+        )}
       </ScrollView>
     </LayoutWrapper>
   );
@@ -232,107 +262,154 @@ export default function ManagerDashboard({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f4f6f8',
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
   centeredContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 100,
   },
   noOutletText: {
     fontSize: 16,
-    color: '#8c6e65',
+    color: '#555',
     fontWeight: '700',
     textAlign: 'center',
   },
   branchHeader: {
-    marginBottom: 20,
+    backgroundColor: '#146e4e',
+    paddingTop: 30,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: -20,
+    shadowColor: '#146e4e',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+    zIndex: 10,
+  },
+  headerContent: {
+    alignItems: 'center',
   },
   branchTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '900',
-    color: '#3d251e',
+    color: '#ffffff',
     marginBottom: 4,
   },
   branchSubtitle: {
     fontSize: 13,
-    color: '#8c6e65',
-    fontWeight: '600',
+    color: '#e8f5e9',
+    fontWeight: '500',
   },
   kpiRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
     marginBottom: 20,
+    marginTop: 10,
+    zIndex: 11,
   },
   kpiCard: {
     flex: 1,
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(20, 110, 78, 0.12)',
-    padding: 16,
-    alignItems: 'flex-start',
-    elevation: 2,
-    shadowColor: '#3d251e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
-  kpiEmoji: {
-    fontSize: 22,
-    marginBottom: 8,
+  kpiIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#e8f5e9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   kpiLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#8c6e65',
-    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#757575',
+    marginTop: 4,
   },
   kpiValue: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '900',
-    color: '#3d251e',
+    color: '#1a1a1a',
   },
   eodButton: {
     backgroundColor: '#10b981',
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginBottom: 20,
-    elevation: 3,
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginBottom: 24,
+    elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   eodButtonText: {
     color: '#fff',
     fontWeight: '800',
-    fontSize: 15,
-    marginLeft: 8,
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1a1a1a',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingHorizontal: 4,
+  },
+  actionItem: {
+    alignItems: 'center',
+    width: '22%',
+  },
+  actionIconBg: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  actionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#424242',
+    textAlign: 'center',
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(20, 110, 78, 0.12)',
+    borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    elevation: 2,
-    shadowColor: '#3d251e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -343,45 +420,42 @@ const styles = StyleSheet.create({
   rowAlign: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  warningIcon: {
-    fontSize: 18,
+    gap: 10,
   },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '800',
-    color: '#3d251e',
+    color: '#1a1a1a',
   },
   cardTitleVal: {
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '900',
     color: '#146e4e',
   },
   progressBarBg: {
-    height: 8,
-    backgroundColor: '#ebdcd3',
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 5,
     overflow: 'hidden',
-    marginBottom: 16,
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: '#146e4e',
-    borderRadius: 4,
+    borderRadius: 5,
   },
   actionLink: {
     alignSelf: 'flex-start',
+    marginTop: 12,
   },
   actionLinkText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#146e4e',
+    color: '#1976d2',
   },
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   badgeText: {
     fontSize: 11,
@@ -389,34 +463,35 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     borderTopWidth: 1,
-    borderColor: '#ebdcd3',
-    paddingTop: 8,
-    marginBottom: 12,
+    borderColor: '#f0f0f0',
+    paddingTop: 12,
   },
   listItem: {
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderColor: '#ebdcd3',
+    borderColor: '#f0f0f0',
   },
   listItemTitle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
-    color: '#3d251e',
+    color: '#1a1a1a',
   },
   listItemDesc: {
-    fontSize: 11,
-    color: '#8c6e65',
-    marginTop: 2,
+    fontSize: 12,
+    color: '#757575',
+    marginTop: 4,
   },
   moreText: {
-    fontSize: 11,
-    color: '#8c6e65',
-    marginTop: 8,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#757575',
+    marginTop: 12,
+    textAlign: 'center',
   },
   emptyText: {
     fontSize: 13,
-    color: '#8c6e65',
-    marginBottom: 16,
+    color: '#757575',
+    fontStyle: 'italic',
   },
   dispatchItem: {
     flexDirection: 'row',
@@ -424,17 +499,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderColor: '#ebdcd3',
+    borderColor: '#f0f0f0',
   },
   receiveButton: {
-    backgroundColor: '#146e4e',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    backgroundColor: '#1976d2',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
   receiveButtonText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
   },
 });

@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
   // FAB
   floatingButton: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 90,
     right: 16,
     backgroundColor: '#146e4e',
     paddingHorizontal: 22,
