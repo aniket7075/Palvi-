@@ -27,6 +27,9 @@ export default function VendorOrders() {
   const [editingReqId, setEditingReqId] = useState<number | null>(null);
   const [inventoryItems, setInventoryItems] = useState<any[]>([]);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [vendorGroups, setVendorGroups] = useState<any[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+  const [msgLanguage, setMsgLanguage] = useState<'EN' | 'MR'>('EN');
 
   // Form states
   const [itemName, setItemName] = useState('');
@@ -50,6 +53,7 @@ export default function VendorOrders() {
     setOutletId(activeOutletId);
     setReqs(stateService.getRequirements(activeOutletId));
     setVendors(stateService.getVendors());
+    setVendorGroups(stateService.getVendorGroups());
     setInventoryItems(stateService.getInventory(activeOutletId));
     setLoading(false);
   };
@@ -63,6 +67,7 @@ export default function VendorOrders() {
     setOutletId(newOutletId);
     setReqs(stateService.getRequirements(newOutletId));
     setVendors(stateService.getVendors());
+    setVendorGroups(stateService.getVendorGroups());
     setInventoryItems(stateService.getInventory(newOutletId));
     setSelectedVendorId(null);
     setLoading(false);
@@ -128,24 +133,48 @@ export default function VendorOrders() {
       return;
     }
 
-    let messageText = `Hello ${vendor.name},\n\nPlease dispatch the following inventory items tomorrow:\n\n`;
-    reqs.forEach((item, index) => {
-      messageText += `${index + 1}. ${item.itemName} - ${item.quantity} ${item.unit}\n`;
-    });
+    let messageText = '';
+    
+    if (msgLanguage === 'MR') {
+      messageText = `नमस्कार ${vendor.name},\n\nकृपया खालील साहित्य उद्या पाठवून द्या:\n\n`;
+      reqs.forEach((item, index) => {
+        messageText += `${index + 1}. ${item.itemName} - ${item.quantity} ${item.unit}\n`;
+      });
+      
+      const outlets = stateService.getOutlets();
+      const currentOutlet = outlets.find((o: any) => o.id.toString() === outletId);
 
-    const outlets = stateService.getOutlets();
-    const currentOutlet = outlets.find((o: any) => o.id.toString() === outletId);
+      if (currentOutlet) {
+        messageText += `\n*डिलिव्हरी पत्ता:*\n`;
+        messageText += `शाखा: ${currentOutlet.name}\n`;
+        messageText += `संपर्क: ${currentOutlet.mobileNumber}\n`;
+        messageText += `पत्ता: ${currentOutlet.address}, ${currentOutlet.city}\n`;
+      }
 
-    if (currentOutlet) {
-      messageText += `\n*Delivery Details:*\n`;
-      messageText += `Branch: ${currentOutlet.name}\n`;
-      messageText += `Contact: ${currentOutlet.mobileNumber}\n`;
-      messageText += `Address: ${currentOutlet.address}, ${currentOutlet.city}\n`;
+      messageText += `\n*तुमचे बिल येथे अपलोड करा:*\n`;
+      messageText += `http://localhost:8080/vendor-upload?vendorId=${vendor.id}\n`;
+      messageText += `\nधन्यवाद.\nपालवी हॉटेल`;
+
+    } else {
+      messageText = `Hello ${vendor.name},\n\nPlease dispatch the following inventory items tomorrow:\n\n`;
+      reqs.forEach((item, index) => {
+        messageText += `${index + 1}. ${item.itemName} - ${item.quantity} ${item.unit}\n`;
+      });
+
+      const outlets = stateService.getOutlets();
+      const currentOutlet = outlets.find((o: any) => o.id.toString() === outletId);
+
+      if (currentOutlet) {
+        messageText += `\n*Delivery Details:*\n`;
+        messageText += `Branch: ${currentOutlet.name}\n`;
+        messageText += `Contact: ${currentOutlet.mobileNumber}\n`;
+        messageText += `Address: ${currentOutlet.address}, ${currentOutlet.city}\n`;
+      }
+
+      messageText += `\n*Upload your bill/invoice here:*\n`;
+      messageText += `http://localhost:8080/vendor-upload?vendorId=${vendor.id}\n`;
+      messageText += `\nThank You.\nPalvi Outlets`;
     }
-
-    messageText += `\n*Upload your bill/invoice here:*\n`;
-    messageText += `http://localhost:8080/vendor-upload?vendorId=${vendor.id}\n`;
-    messageText += `\nThank You.\nPalvi Outlets`;
 
     const encodedText = encodeURIComponent(messageText);
     const whatsappUrl = `https://wa.me/91${vendor.whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodedText}`;
@@ -285,22 +314,74 @@ export default function VendorOrders() {
             </Text>
             <View style={styles.cardDivider} />
 
-            <Text style={styles.formLabel}>Choose Supplier/Vendor</Text>
-            <View style={styles.vendorChoiceList}>
-              {vendors.map((v) => {
-                const isSel = selectedVendorId === v.id;
-                return (
+            {/* Vendor Group Filter */}
+            {vendorGroups.length > 0 && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={styles.formLabel}>Filter by Vendor Group</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
                   <TouchableOpacity
-                    key={v.id}
-                    onPress={() => setSelectedVendorId(v.id)}
-                    style={[styles.vendorOption, isSel && styles.activeVendorOption]}
+                    onPress={() => setSelectedGroupId(null)}
+                    style={[styles.groupPill, selectedGroupId === null && styles.activeGroupPill]}
                   >
-                    <Text style={[styles.vendorOptionText, isSel && styles.activeVendorOptionText]}>
-                      {v.name} ({v.productCategory})
+                    <Text style={[styles.groupPillText, selectedGroupId === null && styles.activeGroupPillText]}>
+                      All Vendors
                     </Text>
                   </TouchableOpacity>
-                );
+                  {vendorGroups.map(g => (
+                    <TouchableOpacity
+                      key={g.id}
+                      onPress={() => setSelectedGroupId(g.id)}
+                      style={[styles.groupPill, selectedGroupId === g.id && styles.activeGroupPill]}
+                    >
+                      <Text style={[styles.groupPillText, selectedGroupId === g.id && styles.activeGroupPillText]}>
+                        {g.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            <Text style={styles.formLabel}>Choose Supplier/Vendor</Text>
+            <View style={styles.vendorChoiceList}>
+              {vendors
+                .filter(v => selectedGroupId === null || (vendorGroups.find(g => g.id === selectedGroupId)?.vendorIds || []).includes(v.id))
+                .map((v) => {
+                  const isSel = selectedVendorId === v.id;
+                  return (
+                    <TouchableOpacity
+                      key={v.id}
+                      onPress={() => setSelectedVendorId(v.id)}
+                      style={[styles.vendorOption, isSel && styles.activeVendorOption]}
+                    >
+                      <Text style={[styles.vendorOptionText, isSel && styles.activeVendorOptionText]}>
+                        {v.name} ({v.productCategory || v.category})
+                      </Text>
+                    </TouchableOpacity>
+                  );
               })}
+              {vendors.filter(v => selectedGroupId === null || (vendorGroups.find(g => g.id === selectedGroupId)?.vendorIds || []).includes(v.id)).length === 0 && (
+                <Text style={styles.emptyText}>No vendors found in this group.</Text>
+              )}
+            </View>
+
+            <View style={styles.cardDivider} />
+
+            {/* Language Selection */}
+            <Text style={styles.formLabel}>Message Language</Text>
+            <View style={styles.languageRow}>
+              <TouchableOpacity 
+                onPress={() => setMsgLanguage('EN')}
+                style={[styles.langOption, msgLanguage === 'EN' && styles.activeLangOption]}
+              >
+                <Text style={[styles.langText, msgLanguage === 'EN' && styles.activeLangText]}>English</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => setMsgLanguage('MR')}
+                style={[styles.langOption, msgLanguage === 'MR' && styles.activeLangOption]}
+              >
+                <Text style={[styles.langText, msgLanguage === 'MR' && styles.activeLangText]}>मराठी</Text>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity onPress={handleSendWhatsApp} style={styles.dispatchBtn}>
@@ -585,5 +666,52 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8c6e65',
     marginTop: 2,
+  },
+  groupPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f0ed',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#ebdcd3',
+  },
+  activeGroupPill: {
+    backgroundColor: '#146e4e',
+    borderColor: '#146e4e',
+  },
+  groupPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#3d251e',
+  },
+  activeGroupPillText: {
+    color: '#ffffff',
+  },
+  languageRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
+  },
+  langOption: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ebdcd3',
+    backgroundColor: '#ffffff',
+  },
+  activeLangOption: {
+    backgroundColor: '#10b981',
+    borderColor: '#10b981',
+  },
+  langText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#8c6e65',
+  },
+  activeLangText: {
+    color: '#ffffff',
   },
 });

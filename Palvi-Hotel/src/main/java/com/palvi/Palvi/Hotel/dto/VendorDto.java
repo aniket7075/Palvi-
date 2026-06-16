@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +22,5 @@ public class VendorDto {
     private String address;
     private String category;
     private Integer billingCycleDays;
+    private List<VendorGroupDto> vendorGroups;
 }

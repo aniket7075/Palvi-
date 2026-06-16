@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import java.util.Set;
 
 @Entity
 @Table(name = "vendors")
@@ -36,4 +39,9 @@ public class Vendor {
     @Column(nullable = false)
     @Builder.Default
     private Integer billingCycleDays = 10;
+
+    @ManyToMany(mappedBy = "vendors", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<VendorGroup> vendorGroups;
 }

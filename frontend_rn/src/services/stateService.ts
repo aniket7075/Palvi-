@@ -36,7 +36,11 @@ export const initializeState = async () => {
     palvi_categories: INITIAL_CATEGORIES,
     palvi_attendance: [],
     palvi_vendor_bills: [],
-    palvi_godown_dispatches: []
+    palvi_godown_dispatches: [],
+    palvi_vendor_groups: [
+      { id: 1, name: "Morning", vendorIds: [] },
+      { id: 2, name: "Evening", vendorIds: [] }
+    ]
   };
 
   // Load from cache first
@@ -98,6 +102,12 @@ export const initializeState = async () => {
       if (godownDispatchRes && godownDispatchRes.data) {
         memoryState.palvi_godown_dispatches = godownDispatchRes.data;
         await AsyncStorage.setItem('palvi_godown_dispatches', JSON.stringify(godownDispatchRes.data));
+      }
+
+      const vendorGroupRes = await api.get('/vendor-groups').catch(() => null);
+      if (vendorGroupRes && vendorGroupRes.data) {
+        memoryState.palvi_vendor_groups = vendorGroupRes.data;
+        await AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(vendorGroupRes.data));
       }
 
       if (categoriesRes && categoriesRes.data) {
@@ -635,6 +645,51 @@ export const stateService = {
     return true;
   },
 
+  // VENDOR GROUPS
+  getVendorGroups: () => {
+    return memoryState.palvi_vendor_groups || [];
+  },
+
+  addVendorGroup: (group: any) => {
+    const newGroup = { ...group, id: Date.now() };
+    const groups = stateService.getVendorGroups();
+    const updated = [...groups, newGroup];
+    memoryState.palvi_vendor_groups = updated;
+    AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updated));
+    return newGroup;
+  },
+
+  updateVendorGroup: (id: number, updates: any) => {
+    const groups = stateService.getVendorGroups();
+    const updated = groups.map((g: any) => g.id === id ? { ...g, ...updates } : g);
+    memoryState.palvi_vendor_groups = updated;
+    AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updated));
+  },
+
+  deleteVendorGroup: (id: number) => {
+    const groups = stateService.getVendorGroups();
+    const updated = groups.filter((g: any) => g.id !== id);
+    memoryState.palvi_vendor_groups = updated;
+    AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updated));
+  },
+
+  assignVendorToGroups: (vendorId: number, groupIds: number[]) => {
+    const groups = stateService.getVendorGroups();
+    const updatedGroups = groups.map((g: any) => {
+      let vIds = g.vendorIds || [];
+      // Remove vendor from group if not in groupIds, add if in groupIds
+      if (groupIds.includes(g.id)) {
+        if (!vIds.includes(vendorId)) vIds.push(vendorId);
+      } else {
+        vIds = vIds.filter((id: number) => id !== vendorId);
+      }
+      return { ...g, vendorIds: vIds };
+    });
+    memoryState.palvi_vendor_groups = updatedGroups;
+    AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updatedGroups));
+  },
+
+  // ----------------------------------------------------
   // --- DAILY CHECKLIST SERVICES ---
   getChecklist: (outletId: any, date: string) => {
     const checklists = getStorageItem('palvi_checklists', INITIAL_CHECKLISTS);

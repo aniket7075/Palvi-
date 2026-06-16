@@ -209,6 +209,17 @@ export default function AdminDashboard() {
             </TouchableOpacity>
           </View>
 
+          {/* Checklist Quick Action */}
+          <TouchableOpacity 
+            style={styles.checklistButton}
+            onPress={() => navigation.navigate('Checklist')}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="checklist" color="#fff" size={20} />
+              <Text style={styles.checklistButtonText}>Global Checklists & Inspections</Text>
+            </View>
+          </TouchableOpacity>
+
           {/* Grand Revenue Splits Card */}
           <View style={styles.ledgerCard}>
             <View style={styles.ledgerHeader}>
@@ -635,6 +646,23 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
+  },
+  checklistButton: {
+    backgroundColor: '#10b981',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 20,
+    elevation: 3,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  checklistButtonText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 15,
+    marginLeft: 8,
   },
   alertSummaryCard: {
     backgroundColor: '#f0fdf4',

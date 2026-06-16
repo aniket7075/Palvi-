@@ -20,6 +20,8 @@ export default function Vendors() {
   const { t } = useLanguage();
   const [vendors, setVendors] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [vendorGroups, setVendorGroups] = useState<any[]>([]);
 
   // Form states
   const [name, setName] = useState('');
@@ -27,7 +29,11 @@ export default function Vendors() {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [address, setAddress] = useState('');
   const [category, setCategory] = useState('');
+  const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
   const [vendorLedgers, setVendorLedgers] = useState<any>({});
+  
+  // Group Form
+  const [newGroupName, setNewGroupName] = useState('');
 
   const loadLedgers = async (vList: any[]) => {
     try {
@@ -57,6 +63,7 @@ export default function Vendors() {
   const loadVendors = () => {
     const vList = stateService.getVendors();
     setVendors(vList);
+    setVendorGroups(stateService.getVendorGroups());
     loadLedgers(vList);
   };
 
@@ -77,13 +84,17 @@ export default function Vendors() {
       return;
     }
 
-    stateService.addVendor({
+    const newVendor = stateService.addVendor({
       name,
       mobileNumber,
       whatsappNumber,
       address,
       productCategory: category
     });
+
+    if (selectedGroups.length > 0) {
+      stateService.assignVendorToGroups(newVendor.id, selectedGroups);
+    }
 
     loadVendors();
     setIsModalOpen(false);
@@ -94,6 +105,25 @@ export default function Vendors() {
     setWhatsappNumber('');
     setAddress('');
     setCategory('');
+    setSelectedGroups([]);
+  };
+
+  const handleCreateGroup = () => {
+    if (!newGroupName.trim()) {
+      Alert.alert('Required', 'Please enter a group name');
+      return;
+    }
+    stateService.addVendorGroup({ name: newGroupName });
+    setNewGroupName('');
+    loadVendors();
+  };
+
+  const toggleGroupSelection = (id: number) => {
+    if (selectedGroups.includes(id)) {
+      setSelectedGroups(selectedGroups.filter(g => g !== id));
+    } else {
+      setSelectedGroups([...selectedGroups, id]);
+    }
   };
 
   const handleCall = (num: string) => {
@@ -136,6 +166,12 @@ export default function Vendors() {
     <LayoutWrapper title={t('supplierDirectory')}>
       <View style={styles.mainContainer}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <Text style={styles.sectionHeader}>Supplier Directory</Text>
+            <TouchableOpacity onPress={() => setIsGroupModalOpen(true)} style={styles.manageGroupsBtn}>
+              <Text style={styles.manageGroupsText}>Manage Groups</Text>
+            </TouchableOpacity>
+          </View>
           {/* Vendors list */}
           <View style={styles.listContainer}>
             {Object.keys(groupedVendors).map((categoryName) => (
@@ -266,6 +302,25 @@ export default function Vendors() {
                 placeholderTextColor="#8c6e65"
               />
 
+              <Text style={styles.formLabel}>Assign to Groups</Text>
+              <View style={styles.checkboxContainer}>
+                {vendorGroups.map(g => (
+                  <TouchableOpacity
+                    key={g.id}
+                    style={styles.checkboxRow}
+                    onPress={() => toggleGroupSelection(g.id)}
+                  >
+                    <View style={[styles.checkbox, selectedGroups.includes(g.id) && styles.checkboxChecked]}>
+                      {selectedGroups.includes(g.id) && <Icon name="check" color="#fff" size={12} />}
+                    </View>
+                    <Text style={styles.checkboxLabel}>{g.name}</Text>
+                  </TouchableOpacity>
+                ))}
+                {vendorGroups.length === 0 && (
+                  <Text style={styles.emptyText}>No groups created yet.</Text>
+                )}
+              </View>
+
               <View style={styles.modalActions}>
                 <TouchableOpacity
                   onPress={() => setIsModalOpen(false)}
@@ -281,6 +336,54 @@ export default function Vendors() {
                 </TouchableOpacity>
               </View>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Manage Groups Modal */}
+      <Modal
+        visible={isGroupModalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsGroupModalOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Manage Vendor Groups</Text>
+            <View style={styles.modalDivider} />
+
+            <View style={styles.listContainer}>
+              {vendorGroups.map(g => (
+                <View key={g.id} style={styles.groupListItem}>
+                  <Text style={styles.groupListItemText}>{g.name}</Text>
+                  <Text style={styles.groupListItemSub}>{(g.vendorIds || []).length} Vendors</Text>
+                </View>
+              ))}
+              {vendorGroups.length === 0 && (
+                <Text style={styles.emptyText}>No groups created yet.</Text>
+              )}
+            </View>
+
+            <Text style={[styles.formLabel, { marginTop: 20 }]}>Create New Group</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TextInput
+                style={[styles.modalInput, { flex: 1, marginBottom: 0 }]}
+                value={newGroupName}
+                onChangeText={setNewGroupName}
+                placeholder="e.g. Morning Vendors"
+                placeholderTextColor="#8c6e65"
+              />
+              <TouchableOpacity onPress={handleCreateGroup} style={styles.createGroupBtn}>
+                <Text style={styles.createGroupBtnText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setIsGroupModalOpen(false)}
+              style={[styles.cancelBtn, { marginTop: 24 }]}
+            >
+              <Text style={styles.cancelBtnText}>Done</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -516,6 +619,81 @@ const styles = StyleSheet.create({
   settleBtnText: {
     color: '#fff',
     fontSize: 12,
+    fontWeight: '700',
+  },
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#3d251e',
+  },
+  manageGroupsBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#f5f0ed',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ebdcd3',
+  },
+  manageGroupsText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#146e4e',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#ebdcd3',
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  checkboxChecked: {
+    backgroundColor: '#10b981',
+    borderColor: '#10b981',
+  },
+  checkboxLabel: {
+    fontSize: 13,
+    color: '#3d251e',
+  },
+  groupListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#ebdcd3',
+  },
+  groupListItemText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#3d251e',
+  },
+  groupListItemSub: {
+    fontSize: 12,
+    color: '#8c6e65',
+  },
+  createGroupBtn: {
+    backgroundColor: '#146e4e',
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  createGroupBtnText: {
+    color: '#fff',
     fontWeight: '700',
   }
 });

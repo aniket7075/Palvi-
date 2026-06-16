@@ -3,9 +3,16 @@ package com.palvi.Palvi.Hotel.mapper;
 import com.palvi.Palvi.Hotel.dto.VendorDto;
 import com.palvi.Palvi.Hotel.entity.Vendor;
 import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
 
 @Component
 public class VendorMapper {
+
+    private final VendorGroupMapper vendorGroupMapper;
+
+    public VendorMapper(VendorGroupMapper vendorGroupMapper) {
+        this.vendorGroupMapper = vendorGroupMapper;
+    }
 
     public VendorDto toDto(Vendor entity) {
         if (entity == null) return null;
@@ -17,6 +24,9 @@ public class VendorMapper {
                 .address(entity.getAddress())
                 .category(entity.getCategory())
                 .billingCycleDays(entity.getBillingCycleDays())
+                .vendorGroups(entity.getVendorGroups() != null 
+                    ? entity.getVendorGroups().stream().map(vendorGroupMapper::toDto).collect(Collectors.toList()) 
+                    : null)
                 .build();
     }
 
