@@ -92,9 +92,10 @@ export default function Login({ navigation }: Props) {
       let targetScreen = 'ManagerDashboard';
       if (session.role === 'ADMIN') targetScreen = 'AdminDashboard';
       if (session.role === 'INVENTORY_MANAGER') targetScreen = 'GodownDispatchScreen';
+      if (session.role === 'FRANCHISEE') targetScreen = 'ManagerDashboard';
       navigation.reset({
         index: 0,
-        routes: [{ name: targetScreen, params: { user: session } }],
+        routes: [{ name: targetScreen as any, params: { user: session } }],
       });
     } catch (err: any) {
       // 2. Network error fallback to offline stateService
@@ -118,6 +119,7 @@ export default function Login({ navigation }: Props) {
           let targetScreen = 'ManagerDashboard';
           if (session.role === 'ADMIN') targetScreen = 'AdminDashboard';
           if (session.role === 'INVENTORY_MANAGER') targetScreen = 'GodownDispatchScreen';
+          if (session.role === 'FRANCHISEE') targetScreen = 'ManagerDashboard';
           navigation.reset({
             index: 0,
             routes: [{ name: targetScreen as any, params: { user: session } }],

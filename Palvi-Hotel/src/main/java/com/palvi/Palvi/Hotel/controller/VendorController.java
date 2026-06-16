@@ -37,8 +37,8 @@ public class VendorController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Get All Vendors", description = "Retrieves active vendors list.")
-    public ResponseEntity<List<VendorDto>> getAllVendors() {
-        return ResponseEntity.ok(vendorService.getAllVendors());
+    public ResponseEntity<List<VendorDto>> getAllVendors(@RequestParam(required = false) Long outletId) {
+        return ResponseEntity.ok(vendorService.getAllVendors(outletId));
     }
 
     @GetMapping("/{id}")

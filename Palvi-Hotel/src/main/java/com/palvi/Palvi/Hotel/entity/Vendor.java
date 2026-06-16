@@ -40,6 +40,10 @@ public class Vendor {
     @Builder.Default
     private Integer billingCycleDays = 10;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "outlet_id")
+    private Outlet outlet;
+
     @ManyToMany(mappedBy = "vendors", fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

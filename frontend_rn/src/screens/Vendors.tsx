@@ -16,7 +16,10 @@ import LayoutWrapper from '../components/LayoutWrapper';
 import api from '../api';
 import { useLanguage } from '../i18n/LanguageContext';
 
-export default function Vendors() {
+export default function Vendors({ route }: any) {
+  const user = route?.params?.user || {};
+  const currentOutletId = user.outletId;
+
   const { t } = useLanguage();
   const [vendors, setVendors] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +64,7 @@ export default function Vendors() {
   };
 
   const loadVendors = () => {
-    const vList = stateService.getVendors();
+    const vList = stateService.getVendors(currentOutletId);
     setVendors(vList);
     setVendorGroups(stateService.getVendorGroups());
     loadLedgers(vList);
@@ -89,7 +92,8 @@ export default function Vendors() {
       mobileNumber,
       whatsappNumber,
       address,
-      productCategory: category
+      productCategory: category,
+      outletId: currentOutletId // If admin wants global, we could add a toggle, but default to current outlet
     });
 
     if (selectedGroups.length > 0) {
@@ -113,7 +117,7 @@ export default function Vendors() {
       Alert.alert('Required', 'Please enter a group name');
       return;
     }
-    stateService.addVendorGroup({ name: newGroupName });
+    stateService.addVendorGroup({ name: newGroupName, outletId: currentOutletId });
     setNewGroupName('');
     loadVendors();
   };

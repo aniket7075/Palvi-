@@ -29,8 +29,8 @@ public class VendorGroupController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VendorGroupDto>> getAllVendorGroups() {
-        return ResponseEntity.ok(vendorGroupService.getAllVendorGroups());
+    public ResponseEntity<List<VendorGroupDto>> getAllVendorGroups(@RequestParam(required = false) Long outletId) {
+        return ResponseEntity.ok(vendorGroupService.getAllVendorGroups(outletId));
     }
 
     @PutMapping("/{id}")

@@ -17,6 +17,8 @@ public class VendorGroupDto {
 
     @NotBlank(message = "Group name is required")
     private String name;
+    
+    private Long outletId;
 
     private List<Long> vendorIds;
 }

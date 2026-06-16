@@ -15,6 +15,7 @@ public class VendorGroupMapper {
         return VendorGroupDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .outletId(entity.getOutlet() != null ? entity.getOutlet().getId() : null)
                 .vendorIds(entity.getVendors() != null 
                     ? entity.getVendors().stream().map(Vendor::getId).collect(Collectors.toList()) 
                     : null)

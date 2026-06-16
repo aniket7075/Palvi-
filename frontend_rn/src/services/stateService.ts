@@ -191,7 +191,8 @@ const syncFromBackendAsync = async () => {
           whatsappNumber: v.whatsappNumber,
           address: v.address,
           productCategory: v.category,
-          billingCycleDays: v.billingCycleDays
+          billingCycleDays: v.billingCycleDays,
+          outletId: v.outletId || null
         }));
         memoryState.palvi_vendors = mapped;
         await AsyncStorage.setItem('palvi_vendors', JSON.stringify(mapped));
@@ -651,8 +652,10 @@ export const stateService = {
   },
 
   // VENDOR GROUPS
-  getVendorGroups: () => {
-    return memoryState.palvi_vendor_groups || [];
+  getVendorGroups: (outletId?: any) => {
+    const groups = memoryState.palvi_vendor_groups || [];
+    if (!outletId) return groups;
+    return groups.filter((g: any) => g.outletId === parseInt(outletId) || g.outletId === null || g.outletId === undefined);
   },
 
   addVendorGroup: (group: any) => {
@@ -661,25 +664,29 @@ export const stateService = {
     const updated = [...groups, newGroup];
     memoryState.palvi_vendor_groups = updated;
     AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updated));
+    api.post('/vendor-groups', {
+      name: group.name,
+      outletId: group.outletId || null
+    }).catch(err => console.error(err));
     return newGroup;
   },
 
   updateVendorGroup: (id: number, updates: any) => {
-    const groups = stateService.getVendorGroups();
+    const groups = memoryState.palvi_vendor_groups || [];
     const updated = groups.map((g: any) => g.id === id ? { ...g, ...updates } : g);
     memoryState.palvi_vendor_groups = updated;
     AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updated));
   },
 
   deleteVendorGroup: (id: number) => {
-    const groups = stateService.getVendorGroups();
+    const groups = memoryState.palvi_vendor_groups || [];
     const updated = groups.filter((g: any) => g.id !== id);
     memoryState.palvi_vendor_groups = updated;
     AsyncStorage.setItem('palvi_vendor_groups', JSON.stringify(updated));
   },
 
   assignVendorToGroups: (vendorId: number, groupIds: number[]) => {
-    const groups = stateService.getVendorGroups();
+    const groups = memoryState.palvi_vendor_groups || [];
     const updatedGroups = groups.map((g: any) => {
       let vIds = g.vendorIds || [];
       // Remove vendor from group if not in groupIds, add if in groupIds
@@ -892,8 +899,10 @@ export const stateService = {
   },
 
   // --- VENDORS SERVICES ---
-  getVendors: () => {
-    return getStorageItem('palvi_vendors', INITIAL_VENDORS);
+  getVendors: (outletId?: any) => {
+    const vendors = getStorageItem('palvi_vendors', INITIAL_VENDORS);
+    if (!outletId) return vendors;
+    return vendors.filter((v: any) => v.outletId === parseInt(outletId) || v.outletId === null || v.outletId === undefined);
   },
 
   addVendor: (vendor: any) => {
@@ -909,10 +918,31 @@ export const stateService = {
       whatsappNumber: vendor.whatsappNumber,
       address: vendor.address,
       category: vendor.productCategory,
-      billingCycleDays: vendor.billingCycleDays || 10
+      billingCycleDays: vendor.billingCycleDays || 10,
+      outletId: vendor.outletId || null
     };
     api.post('/vendors', apiPayload).catch(err => console.error('Failed to create vendor on backend:', err));
     return newVendor;
+  },
+
+  updateVendor: (id: number, updates: any) => {
+    const vendors = getStorageItem('palvi_vendors', INITIAL_VENDORS);
+    const updated = vendors.map((v: any) => v.id === id ? { ...v, ...updates } : v);
+    setStorageItem('palvi_vendors', updated);
+    
+    const vendor = updated.find((v: any) => v.id === id);
+    if (vendor) {
+      api.put(`/vendors/${id}`, {
+        vendorName: vendor.name,
+        mobileNumber: vendor.mobileNumber,
+        whatsappNumber: vendor.whatsappNumber,
+        address: vendor.address,
+        category: vendor.productCategory,
+        billingCycleDays: vendor.billingCycleDays || 10,
+        outletId: vendor.outletId || null
+      }).catch(err => console.error('Failed to update vendor on backend:', err));
+    }
+    return true;
   },
 
   // --- PURCHASES SERVICES ---

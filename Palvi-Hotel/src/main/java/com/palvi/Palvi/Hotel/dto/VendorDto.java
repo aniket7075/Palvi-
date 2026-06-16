@@ -22,5 +22,6 @@ public class VendorDto {
     private String address;
     private String category;
     private Integer billingCycleDays;
+    private Long outletId;
     private List<VendorGroupDto> vendorGroups;
 }

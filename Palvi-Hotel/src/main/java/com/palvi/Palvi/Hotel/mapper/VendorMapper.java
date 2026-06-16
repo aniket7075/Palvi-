@@ -24,6 +24,7 @@ public class VendorMapper {
                 .address(entity.getAddress())
                 .category(entity.getCategory())
                 .billingCycleDays(entity.getBillingCycleDays())
+                .outletId(entity.getOutlet() != null ? entity.getOutlet().getId() : null)
                 .vendorGroups(entity.getVendorGroups() != null 
                     ? entity.getVendorGroups().stream().map(vendorGroupMapper::toDto).collect(Collectors.toList()) 
                     : null)

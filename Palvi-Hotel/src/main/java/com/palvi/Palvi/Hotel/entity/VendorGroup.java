@@ -23,6 +23,10 @@ public class VendorGroup {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "outlet_id")
+    private Outlet outlet;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "vendor_group_mapping",

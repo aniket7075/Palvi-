@@ -38,20 +38,18 @@ public class ApplicationStartupListener implements CommandLineRunner {
         Role invManagerRole = roleRepository.findByName("INVENTORY_MANAGER")
                 .orElseGet(() -> roleRepository.save(Role.builder().name("INVENTORY_MANAGER").build()));
 
-        // Seed a default outlet if none exists, to assign staff/managers
-        Outlet defaultOutlet;
+        Role franchiseeRole = roleRepository.findByName("FRANCHISEE")
+                .orElseGet(() -> roleRepository.save(Role.builder().name("FRANCHISEE").build()));
+
+        // Seed 4 Default Outlets
         if (outletRepository.count() == 0) {
-            defaultOutlet = outletRepository.save(Outlet.builder()
-                    .outletName("Palvi Main Branch")
-                    .address("123 Main Street")
-                    .city("Pune")
-                    .mobileNumber("9876543210")
-                    .gstNumber("27AAACP1234A1Z1")
-                    .status("ACTIVE")
-                    .build());
-        } else {
-            defaultOutlet = outletRepository.findAll().get(0);
+            outletRepository.save(Outlet.builder().outletName("Palvi Hotel - Miraj").address("Miraj").city("Miraj").mobileNumber("9876543210").gstNumber("").status("ACTIVE").build());
+            outletRepository.save(Outlet.builder().outletName("Palvi Hotel - Sangli").address("Sangli").city("Sangli").mobileNumber("9876543211").gstNumber("").status("ACTIVE").build());
+            outletRepository.save(Outlet.builder().outletName("Palvi Hotel - Jaisingpur").address("Jaisingpur").city("Jaisingpur").mobileNumber("9876543212").gstNumber("").status("ACTIVE").build());
+            outletRepository.save(Outlet.builder().outletName("Palvi Hotel - Ichalkaranji").address("Ichalkaranji").city("Ichalkaranji").mobileNumber("9876543213").gstNumber("").status("ACTIVE").build());
         }
+        
+        Outlet firstOutlet = outletRepository.findAll().get(0);
 
         // Seed multiple default Admin Users if not exists
         String[] adminEmails = {"admin@gmail.com", "admin2@gmail.com", "admin3@gmail.com"};
@@ -63,7 +61,7 @@ public class ApplicationStartupListener implements CommandLineRunner {
                         .password(passwordEncoder.encode("Admin@123"))
                         .mobileNumber("9999999999")
                         .role(adminRole)
-                        .outlet(defaultOutlet)
+                        .outlet(firstOutlet)
                         .active(true)
                         .build();
                 userRepository.save(admin);
@@ -81,12 +79,29 @@ public class ApplicationStartupListener implements CommandLineRunner {
                     .password(passwordEncoder.encode("Manager@123"))
                     .mobileNumber("8888888888")
                     .role(invManagerRole)
-                    .outlet(defaultOutlet)
+                    .outlet(firstOutlet)
                     .active(true)
                     .build();
             userRepository.save(invManager);
             System.out.println("----------------------------------------");
             System.out.println("DEFAULT INVENTORY MANAGER SEEDED: invmanager@gmail.com / Manager@123");
+            System.out.println("----------------------------------------");
+        }
+
+        // Seed a default Franchisee
+        if (!userRepository.existsByEmail("franchisee@gmail.com")) {
+            User franchisee = User.builder()
+                    .fullName("Default Franchisee")
+                    .email("franchisee@gmail.com")
+                    .password(passwordEncoder.encode("Franchise@123"))
+                    .mobileNumber("7777777777")
+                    .role(franchiseeRole)
+                    .outlet(firstOutlet)
+                    .active(true)
+                    .build();
+            userRepository.save(franchisee);
+            System.out.println("----------------------------------------");
+            System.out.println("DEFAULT FRANCHISEE SEEDED: franchisee@gmail.com / Franchise@123");
             System.out.println("----------------------------------------");
         }
     }

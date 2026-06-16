@@ -79,8 +79,8 @@ export default function Managers() {
       return;
     }
     
-    if (role === 'MANAGER' && selectedOutletId === null) {
-      Alert.alert('Required Fields', 'Please assign an outlet to the manager.');
+    if ((role === 'MANAGER' || role === 'FRANCHISEE') && selectedOutletId === null) {
+      Alert.alert('Required Fields', `Please assign an outlet to the ${role.toLowerCase()}.`);
       return;
     }
 
@@ -189,9 +189,21 @@ export default function Managers() {
                 >
                   <Text style={[styles.outletOptionText, role === 'ADMIN' && styles.activeOutletOptionText]}>Admin</Text>
                 </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => setRole('INVENTORY_MANAGER')} 
+                  style={[styles.outletOption, role === 'INVENTORY_MANAGER' && styles.activeOutletOption]}
+                >
+                  <Text style={[styles.outletOptionText, role === 'INVENTORY_MANAGER' && styles.activeOutletOptionText]}>Inventory Manager</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => setRole('FRANCHISEE')} 
+                  style={[styles.outletOption, role === 'FRANCHISEE' && styles.activeOutletOption]}
+                >
+                  <Text style={[styles.outletOptionText, role === 'FRANCHISEE' && styles.activeOutletOptionText]}>Franchisee</Text>
+                </TouchableOpacity>
               </View>
 
-              {role === 'MANAGER' && (
+              {(role === 'MANAGER' || role === 'FRANCHISEE') && (
                 <>
                   <Text style={styles.formLabel}>Assign Branch Outlet *</Text>
                   <View style={styles.outletList}>

@@ -8,6 +8,8 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Share,
+  Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -187,6 +189,53 @@ export default function Profile() {
             </View>
           </TouchableOpacity>
         </View>
+        {/* Social Media Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Connect & Share</Text>
+          <View style={styles.cardDivider} />
+          
+          <Text style={styles.socialDesc}>
+            *आपल्या सेवेत शुद्ध शाकाहारी चवीचा नवा बहर... म्हणजेच हॉटेल पालवी..!! 🌿*
+          </Text>
+          <Text style={styles.socialAddress}>
+            आमचा पत्ता : मुख्य शाखा | मिरज माधवनगर रोड, भारती हॉस्पिटल पाठीमागे, मिरज.
+          </Text>
+
+          <View style={styles.socialButtonsRow}>
+            <TouchableOpacity 
+              style={[styles.socialBtn, { backgroundColor: '#e1306c' }]}
+              onPress={() => Linking.openURL('https://www.instagram.com/hotelpalvi.sangli/')}
+            >
+              <Text style={styles.socialBtnText}>Instagram</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.socialBtn, { backgroundColor: '#1877f2' }]}
+              onPress={() => Linking.openURL('https://www.facebook.com/profile.php?id=100064920224482')}
+            >
+              <Text style={styles.socialBtnText}>Facebook</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.socialBtn, { backgroundColor: '#ff0000' }]}
+              onPress={() => Linking.openURL('https://www.youtube.com/channel/UCFM10ZtibGtegNdrakZ2iKg')}
+            >
+              <Text style={styles.socialBtnText}>YouTube</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity 
+            style={styles.shareAppBtn}
+            onPress={() => Share.share({
+              message: `नमस्कार 🙏\n\n*आपल्या सेवेत शुद्ध शाकाहारी चवीचा नवा बहर... म्हणजेच हॉटेल पालवी..!! 🌿*\n\nआमच्या लेटेस्ट डिजिटल मीडियाच्या माध्यमातून अपडेट्स आणि स्पेशल डिशेस पाहण्यासाठी आत्ताच फॉलो करा 👇😍\n\nInstagram:\nhttps://www.instagram.com/hotelpalvi.sangli/\n\nFacebook:\nhttps://www.facebook.com/profile.php?id=100064920224482\n\nYouTube:\nhttps://www.youtube.com/channel/UCFM10ZtibGtegNdrakZ2iKg\n\nआमचा पत्ता : मुख्य शाखा | मिरज माधवनगर रोड, भारती हॉस्पिटल पाठीमागे, मिरज.`
+            })}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={styles.shareAppBtnText}>Share Greeting Message</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </LayoutWrapper>
   );
@@ -358,5 +407,48 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '800',
     fontSize: 14,
+  },
+  socialDesc: {
+    fontSize: 13,
+    color: '#3d251e',
+    fontWeight: '800',
+    marginBottom: 6,
+    lineHeight: 18,
+  },
+  socialAddress: {
+    fontSize: 11,
+    color: '#8c6e65',
+    marginBottom: 16,
+    lineHeight: 16,
+  },
+  socialButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  socialBtn: {
+    flex: 1,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  socialBtnText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  shareAppBtn: {
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#146e4e',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareAppBtnText: {
+    color: '#146e4e',
+    fontWeight: '800',
+    fontSize: 13,
   },
 });

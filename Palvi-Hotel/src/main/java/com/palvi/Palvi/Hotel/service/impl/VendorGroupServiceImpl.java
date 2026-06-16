@@ -7,6 +7,7 @@ import com.palvi.Palvi.Hotel.exception.ResourceNotFoundException;
 import com.palvi.Palvi.Hotel.mapper.VendorGroupMapper;
 import com.palvi.Palvi.Hotel.repository.VendorGroupRepository;
 import com.palvi.Palvi.Hotel.repository.VendorRepository;
+import com.palvi.Palvi.Hotel.repository.OutletRepository;
 import com.palvi.Palvi.Hotel.service.VendorGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,11 +26,18 @@ public class VendorGroupServiceImpl implements VendorGroupService {
     private VendorRepository vendorRepository;
 
     @Autowired
+    private OutletRepository outletRepository;
+
+    @Autowired
     private VendorGroupMapper vendorGroupMapper;
 
     @Override
     public VendorGroupDto createVendorGroup(VendorGroupDto dto) {
         VendorGroup group = vendorGroupMapper.toEntity(dto);
+        if (dto.getOutletId() != null) {
+            group.setOutlet(outletRepository.findById(dto.getOutletId())
+                .orElseThrow(() -> new ResourceNotFoundException("Outlet not found")));
+        }
         if (dto.getVendorIds() != null && !dto.getVendorIds().isEmpty()) {
             List<Vendor> vendors = vendorRepository.findAllById(dto.getVendorIds());
             group.setVendors(new HashSet<>(vendors));
@@ -46,7 +54,12 @@ public class VendorGroupServiceImpl implements VendorGroupService {
     }
 
     @Override
-    public List<VendorGroupDto> getAllVendorGroups() {
+    public List<VendorGroupDto> getAllVendorGroups(Long outletId) {
+        if (outletId != null) {
+            return vendorGroupRepository.findByOutletIdOrGlobal(outletId).stream()
+                    .map(vendorGroupMapper::toDto)
+                    .collect(Collectors.toList());
+        }
         return vendorGroupRepository.findAll().stream()
                 .map(vendorGroupMapper::toDto)
                 .collect(Collectors.toList());
@@ -58,6 +71,13 @@ public class VendorGroupServiceImpl implements VendorGroupService {
                 .orElseThrow(() -> new ResourceNotFoundException("VendorGroup not found with id: " + id));
         group.setName(dto.getName());
         
+        if (dto.getOutletId() != null) {
+            group.setOutlet(outletRepository.findById(dto.getOutletId())
+                .orElseThrow(() -> new ResourceNotFoundException("Outlet not found")));
+        } else {
+            group.setOutlet(null);
+        }
+
         if (dto.getVendorIds() != null) {
             List<Vendor> vendors = vendorRepository.findAllById(dto.getVendorIds());
             group.setVendors(new HashSet<>(vendors));
