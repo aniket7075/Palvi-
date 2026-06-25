@@ -11,6 +11,7 @@ import com.palvi.Palvi.Hotel.service.ChecklistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.palvi.Palvi.Hotel.service.FirebaseMessagingService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +29,9 @@ public class ChecklistServiceImpl implements ChecklistService {
 
     @Autowired
     private ChecklistMapper checklistMapper;
+
+    @Autowired
+    private FirebaseMessagingService firebaseMessagingService;
 
     @Override
     public ChecklistDto createChecklist(ChecklistDto dto) {
@@ -68,6 +72,14 @@ public class ChecklistServiceImpl implements ChecklistService {
 
         checklist.setCompleted(!checklist.isCompleted());
         Checklist saved = checklistRepository.save(checklist);
+
+        // Trigger Notification to Admin
+        String status = saved.isCompleted() ? "Completed" : "Pending";
+        String outletName = saved.getOutlet() != null ? saved.getOutlet().getOutletName() : "Unknown Outlet";
+        String messageBody = "Checklist '" + saved.getChecklistName() + "' was marked as " + status + " at " + outletName + ".";
+        
+        firebaseMessagingService.sendNotificationToTopic("admin", "Checklist Update", messageBody);
+
         return checklistMapper.toDto(saved);
     }
 

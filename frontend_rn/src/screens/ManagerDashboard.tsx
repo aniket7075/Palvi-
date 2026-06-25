@@ -121,14 +121,14 @@ export default function ManagerDashboard({ navigation }: Props) {
             <View style={styles.kpiIconWrapper}>
               <Icon name="sales" color="#146e4e" size={20} />
             </View>
-            <Text style={styles.kpiValue}>₹{metrics?.todaySales?.toLocaleString('en-IN') || 0}</Text>
+            <Text style={styles.kpiValue} numberOfLines={1} adjustsFontSizeToFit>₹{metrics?.todaySales?.toLocaleString('en-IN') || 0}</Text>
             <Text style={styles.kpiLabel}>Today's Sales</Text>
           </View>
           <View style={styles.kpiCard}>
             <View style={[styles.kpiIconWrapper, { backgroundColor: '#fff3e0' }]}>
               <Icon name="checklist" color="#e65100" size={20} />
             </View>
-            <Text style={styles.kpiValue}>{completedChecklist}/{totalChecklist}</Text>
+            <Text style={styles.kpiValue} numberOfLines={1} adjustsFontSizeToFit>{completedChecklist}/{totalChecklist}</Text>
             <Text style={styles.kpiLabel}>Tasks Done</Text>
           </View>
         </View>

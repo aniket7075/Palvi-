@@ -10,6 +10,8 @@ import {
   Alert,
   ActivityIndicator,
   Linking,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Icon from '../components/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -193,9 +195,9 @@ export default function Purchases() {
                 <View style={styles.cardDivider} />
 
                 <View style={styles.cardFooter}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, flexShrink: 1, marginRight: 8 }}>
                     <Icon name="inventory" color="#8c6e65" size={14} />
-                    <Text style={[styles.qtyText, { marginLeft: 4 }]}>
+                    <Text style={[styles.qtyText, { marginLeft: 4, flexShrink: 1 }]}>
                       {t('qty')}: {p.quantity} @ ₹{p.price}/{t('unitPrice')}
                     </Text>
                   </View>
@@ -255,90 +257,95 @@ export default function Purchases() {
         animationType="slide"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingPurchaseId ? 'Edit Purchase Entry' : 'Log Purchase Entry'}</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{editingPurchaseId ? 'Edit Purchase Entry' : 'Log Purchase Entry'}</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <Text style={styles.formLabel}>Select Supplier *</Text>
-              <View style={styles.vendorOptionsList}>
-                {vendors.map((v) => {
-                  const isSel = selectedVendorId === v.id;
-                  return (
-                    <TouchableOpacity
-                      key={v.id}
-                      onPress={() => setSelectedVendorId(v.id)}
-                      style={[styles.vendorOption, isSel && styles.activeVendorOption]}
-                    >
-                      <Text style={[styles.vendorOptionText, isSel && styles.activeVendorOptionText]}>
-                        {v.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <Text style={styles.formLabel}>Item Name *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={itemName}
-                onChangeText={setItemName}
-                placeholder="e.g. Rice"
-                placeholderTextColor="#8c6e65"
-              />
-
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Quantity *</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={quantity}
-                    onChangeText={setQuantity}
-                    placeholder="e.g. 50"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <Text style={styles.formLabel}>Select Supplier *</Text>
+                <View style={styles.vendorOptionsList}>
+                  {vendors.map((v) => {
+                    const isSel = selectedVendorId === v.id;
+                    return (
+                      <TouchableOpacity
+                        key={v.id}
+                        onPress={() => setSelectedVendorId(v.id)}
+                        style={[styles.vendorOption, isSel && styles.activeVendorOption]}
+                      >
+                        <Text style={[styles.vendorOptionText, isSel && styles.activeVendorOptionText]}>
+                          {v.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Unit Price (₹) *</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={unitPrice}
-                    onChangeText={setUnitPrice}
-                    placeholder="e.g. 60"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+
+                <Text style={styles.formLabel}>Item Name *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={itemName}
+                  onChangeText={setItemName}
+                  placeholder="e.g. Rice"
+                  placeholderTextColor="#8c6e65"
+                />
+
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Quantity *</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={quantity}
+                      onChangeText={setQuantity}
+                      placeholder="e.g. 50"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Unit Price (₹) *</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={unitPrice}
+                      onChangeText={setUnitPrice}
+                      placeholder="e.g. 60"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
-              </View>
 
-              <Text style={styles.formLabel}>Invoice/Bill Number *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={invoiceNumber}
-                onChangeText={setInvoiceNumber}
-                placeholder="e.g. INV-2026-001"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>Invoice/Bill Number *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={invoiceNumber}
+                  onChangeText={setInvoiceNumber}
+                  placeholder="e.g. INV-2026-001"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  onPress={() => setIsModalOpen(false)}
-                  style={styles.cancelBtn}
-                >
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={styles.saveBtn}
-                >
-                  <Text style={styles.saveBtnText}>{editingPurchaseId ? 'Update Entry' : 'Log Entry'}</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    onPress={() => setIsModalOpen(false)}
+                    style={styles.cancelBtn}
+                  >
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    style={styles.saveBtn}
+                  >
+                    <Text style={styles.saveBtnText}>{editingPurchaseId ? 'Update Entry' : 'Log Entry'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

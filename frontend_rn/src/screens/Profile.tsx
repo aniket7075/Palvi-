@@ -27,6 +27,7 @@ export default function Profile() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -80,6 +81,21 @@ export default function Profile() {
       setTimeout(() => setSuccess(''), 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to change password.');
+    }
+  };
+
+  const handleSync = async () => {
+    setError('');
+    setSuccess('');
+    setSyncing(true);
+    try {
+      await stateService.syncData();
+      setSuccess('Data synchronized successfully with cloud server!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Sync failed. Please check internet connection.');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -189,6 +205,34 @@ export default function Profile() {
             </View>
           </TouchableOpacity>
         </View>
+
+        {/* Cloud Data Sync Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Cloud Data Sync</Text>
+          <View style={styles.cardDivider} />
+          
+          <Text style={{ fontSize: 13, color: '#8c6e65', marginBottom: 16, lineHeight: 18 }}>
+            Your changes are saved locally to your device immediately and work offline. Press the button below to force synchronize data with the Spring Boot server.
+          </Text>
+
+          <TouchableOpacity 
+            onPress={handleSync} 
+            style={[styles.changePasswordBtn, { backgroundColor: '#146e4e' }]} 
+            disabled={syncing}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              {syncing ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <Icon name="refresh" color="#ffffff" size={16} />
+              )}
+              <Text style={[styles.changePasswordBtnText, { marginLeft: 8 }]}>
+                {syncing ? 'Synchronizing data...' : 'Sync Data with Cloud'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
         {/* Social Media Card */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Connect & Share</Text>

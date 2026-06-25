@@ -9,6 +9,8 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -260,167 +262,179 @@ export default function Staff() {
 
       {/* Add / Edit Staff Modal */}
       <Modal visible={isModalOpen} transparent animationType="slide" onRequestClose={() => setIsModalOpen(false)}>
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingId ? 'Edit Employee' : 'Register Employee'}</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{editingId ? 'Edit Employee' : 'Register Employee'}</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <Text style={styles.formLabel}>Employee ID *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={employeeId}
-                onChangeText={setEmployeeId}
-                placeholder="e.g. EMP102"
-                placeholderTextColor="#8c6e65"
-              />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <Text style={styles.formLabel}>Employee ID *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={employeeId}
+                  onChangeText={setEmployeeId}
+                  placeholder="e.g. EMP102"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>Full Name *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={fullName}
-                onChangeText={setFullName}
-                placeholder="e.g. Sunny Deol"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>Full Name *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={fullName}
+                  onChangeText={setFullName}
+                  placeholder="e.g. Sunny Deol"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>Mobile Number *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={mobileNumber}
-                onChangeText={setMobileNumber}
-                placeholder="e.g. +91 9999999999"
-                placeholderTextColor="#8c6e65"
-                keyboardType="phone-pad"
-              />
+                <Text style={styles.formLabel}>Mobile Number *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={mobileNumber}
+                  onChangeText={setMobileNumber}
+                  placeholder="e.g. +91 9999999999"
+                  placeholderTextColor="#8c6e65"
+                  keyboardType="phone-pad"
+                />
 
-              <Text style={styles.formLabel}>Home Address</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={address}
-                onChangeText={setAddress}
-                placeholder="e.g. Flat 12, Pune Residency"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>Home Address</Text>
+                <TextInput
+                  style={[styles.modalInput, { height: 80, textAlignVertical: 'top', paddingTop: 10 }]}
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="e.g. Flat 12, Pune Residency"
+                  placeholderTextColor="#8c6e65"
+                  multiline={true}
+                  numberOfLines={3}
+                />
 
-              <Text style={styles.formLabel}>Role *</Text>
-              <View style={styles.roleGrid}>
-                {staffRoles.map((r) => {
-                  const isSel = staffRole === r;
-                  return (
-                    <TouchableOpacity
-                      key={r}
-                      onPress={() => setStaffRole(r)}
-                      style={[styles.roleOption, isSel && styles.activeRoleOption]}
-                    >
-                      <Text style={[styles.roleOptionText, isSel && styles.activeRoleOptionText]}>
-                        {r.replace('_', ' ')}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+                <Text style={styles.formLabel}>Role *</Text>
+                <View style={styles.roleGrid}>
+                  {staffRoles.map((r) => {
+                    const isSel = staffRole === r;
+                    return (
+                      <TouchableOpacity
+                        key={r}
+                        onPress={() => setStaffRole(r)}
+                        style={[styles.roleOption, isSel && styles.activeRoleOption]}
+                      >
+                        <Text style={[styles.roleOptionText, isSel && styles.activeRoleOptionText]}>
+                          {r.replace('_', ' ')}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
 
-              <Text style={styles.formLabel}>Monthly Salary (₹) *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={salary}
-                onChangeText={setSalary}
-                placeholder="e.g. 15000"
-                placeholderTextColor="#8c6e65"
-                keyboardType="numeric"
-              />
+                <Text style={styles.formLabel}>Monthly Salary (₹) *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={salary}
+                  onChangeText={setSalary}
+                  placeholder="e.g. 15000"
+                  placeholderTextColor="#8c6e65"
+                  keyboardType="numeric"
+                />
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-                  <Text style={styles.saveBtnText}>{editingId ? 'Save Changes' : 'Register'}</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                    <Text style={styles.saveBtnText}>{editingId ? 'Save Changes' : 'Register'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Advance / Payroll Modal */}
       <Modal visible={isAdvanceModalOpen} transparent animationType="slide" onRequestClose={() => setIsAdvanceModalOpen(false)}>
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Payroll & Advances</Text>
-              <TouchableOpacity onPress={() => setIsAdvanceModalOpen(false)}>
-                <Icon name="close" color="#3d251e" size={20} />
-              </TouchableOpacity>
-            </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Payroll & Advances</Text>
+                <TouchableOpacity onPress={() => setIsAdvanceModalOpen(false)}>
+                  <Icon name="close" color="#3d251e" size={20} />
+                </TouchableOpacity>
+              </View>
 
-            {selectedStaff && (
-              <ScrollView style={{ maxHeight: 500 }} keyboardShouldPersistTaps="handled">
-                <View style={styles.payrollSummary}>
-                  <Text style={styles.payrollStaffName}>{selectedStaff.fullName}</Text>
-                  
-                  <View style={styles.payrollRow}>
-                    <Text style={styles.payrollLabel}>Total Salary (Monthly):</Text>
-                    <Text style={styles.payrollValue}>₹{selectedStaff.salary}</Text>
-                  </View>
-                  <View style={styles.payrollRow}>
-                    <Text style={styles.payrollLabel}>Advances this month:</Text>
-                    <Text style={[styles.payrollValue, { color: '#c62828' }]}>- ₹{totalAdvance}</Text>
-                  </View>
-                  <View style={styles.cardDivider} />
-                  <View style={styles.payrollRow}>
-                    <Text style={[styles.payrollLabel, { fontWeight: '900', color: '#146e4e' }]}>Net Payable:</Text>
-                    <Text style={[styles.payrollValue, { fontWeight: '900', color: '#146e4e' }]}>
-                      ₹{selectedStaff.salary - totalAdvance}
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={[styles.sectionHeader, { marginTop: 16 }]}>Record New Advance</Text>
-                <View style={styles.advanceFormRow}>
-                  <View style={{ flex: 1, marginRight: 8 }}>
-                    <Text style={styles.formLabel}>Amount (₹)</Text>
-                    <TextInput
-                      style={[styles.modalInput, { marginBottom: 0 }]}
-                      value={advanceAmount}
-                      onChangeText={setAdvanceAmount}
-                      keyboardType="numeric"
-                      placeholder="0"
-                    />
-                  </View>
-                  <View style={{ flex: 1, marginRight: 8 }}>
-                    <Text style={styles.formLabel}>Reason</Text>
-                    <TextInput
-                      style={[styles.modalInput, { marginBottom: 0 }]}
-                      value={advanceReason}
-                      onChangeText={setAdvanceReason}
-                      placeholder="e.g. Medical"
-                    />
-                  </View>
-                  <TouchableOpacity style={styles.addAdvanceBtn} onPress={handleSaveAdvance}>
-                    <Text style={styles.addAdvanceBtnText}>Add</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Recent Advances ({currentMonthPrefix})</Text>
-                {staffAdvances.length === 0 ? (
-                  <Text style={styles.emptyText}>No advances recorded this month.</Text>
-                ) : (
-                  staffAdvances.map((adv: any, index: number) => (
-                    <View key={index} style={styles.advanceItem}>
-                      <View>
-                        <Text style={styles.advanceItemDate}>{adv.advanceDate}</Text>
-                        <Text style={styles.advanceItemReason}>{adv.reason || 'No reason provided'}</Text>
-                      </View>
-                      <Text style={styles.advanceItemAmount}>- ₹{adv.amount}</Text>
+              {selectedStaff && (
+                <ScrollView style={{ maxHeight: 500 }} keyboardShouldPersistTaps="handled">
+                  <View style={styles.payrollSummary}>
+                    <Text style={styles.payrollStaffName}>{selectedStaff.fullName}</Text>
+                    
+                    <View style={styles.payrollRow}>
+                      <Text style={styles.payrollLabel}>Total Salary (Monthly):</Text>
+                      <Text style={styles.payrollValue}>₹{selectedStaff.salary}</Text>
                     </View>
-                  ))
-                )}
-              </ScrollView>
-            )}
+                    <View style={styles.payrollRow}>
+                      <Text style={styles.payrollLabel}>Advances this month:</Text>
+                      <Text style={[styles.payrollValue, { color: '#c62828' }]}>- ₹{totalAdvance}</Text>
+                    </View>
+                    <View style={styles.cardDivider} />
+                    <View style={styles.payrollRow}>
+                      <Text style={[styles.payrollLabel, { fontWeight: '900', color: '#146e4e' }]}>Net Payable:</Text>
+                      <Text style={[styles.payrollValue, { fontWeight: '900', color: '#146e4e' }]}>
+                        ₹{selectedStaff.salary - totalAdvance}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text style={[styles.sectionHeader, { marginTop: 16 }]}>Record New Advance</Text>
+                  <View style={styles.advanceFormRow}>
+                    <View style={{ flex: 1, marginRight: 8 }}>
+                      <Text style={styles.formLabel}>Amount (₹)</Text>
+                      <TextInput
+                        style={[styles.modalInput, { marginBottom: 0 }]}
+                        value={advanceAmount}
+                        onChangeText={setAdvanceAmount}
+                        keyboardType="numeric"
+                        placeholder="0"
+                      />
+                    </View>
+                    <View style={{ flex: 1, marginRight: 8 }}>
+                      <Text style={styles.formLabel}>Reason</Text>
+                      <TextInput
+                        style={[styles.modalInput, { marginBottom: 0 }]}
+                        value={advanceReason}
+                        onChangeText={setAdvanceReason}
+                        placeholder="e.g. Medical"
+                      />
+                    </View>
+                    <TouchableOpacity style={styles.addAdvanceBtn} onPress={handleSaveAdvance}>
+                      <Text style={styles.addAdvanceBtnText}>Add</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Recent Advances ({currentMonthPrefix})</Text>
+                  {staffAdvances.length === 0 ? (
+                    <Text style={styles.emptyText}>No advances recorded this month.</Text>
+                  ) : (
+                    staffAdvances.map((adv: any, index: number) => (
+                      <View key={index} style={styles.advanceItem}>
+                        <View>
+                          <Text style={styles.advanceItemDate}>{adv.advanceDate}</Text>
+                          <Text style={styles.advanceItemReason}>{adv.reason || 'No reason provided'}</Text>
+                        </View>
+                        <Text style={styles.advanceItemAmount}>- ₹{adv.amount}</Text>
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
+              )}
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );
@@ -766,6 +780,7 @@ const styles = StyleSheet.create({
   advanceFormRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
+    width: '100%',
   },
   addAdvanceBtn: {
     backgroundColor: '#146e4e',
@@ -773,6 +788,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     paddingHorizontal: 16,
+    flexShrink: 0,
+    minWidth: 60,
+    alignItems: 'center',
   },
   addAdvanceBtnText: {
     color: '#ffffff',

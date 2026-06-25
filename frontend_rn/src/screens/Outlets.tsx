@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  Modal,
   Alert,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Icon from '../components/Icon';
 import { stateService } from '../services/stateService';
@@ -267,100 +269,107 @@ export default function Outlets() {
         animationType="slide"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {editingId ? 'Edit Outlet Branch' : 'Add New Branch'}
-            </Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                {editingId ? 'Edit Outlet Branch' : 'Add New Branch'}
+              </Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView
-              contentContainerStyle={styles.modalFormScroll}
-              keyboardShouldPersistTaps="handled"
-            >
-              <Text style={styles.formLabel}>Outlet Name *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={name}
-                onChangeText={setName}
-                placeholder="e.g. Palvi Hotel - Chennai"
-                placeholderTextColor="#8c6e65"
-              />
+              <ScrollView
+                contentContainerStyle={styles.modalFormScroll}
+                keyboardShouldPersistTaps="handled"
+              >
+                <Text style={styles.formLabel}>Outlet Name *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="e.g. Palvi Hotel - Chennai"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>Address *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={address}
-                onChangeText={setAddress}
-                placeholder="e.g. T. Nagar"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>Address *</Text>
+                <TextInput
+                  style={[styles.modalInput, { height: 80, textAlignVertical: 'top', paddingTop: 10 }]}
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="e.g. T. Nagar"
+                  placeholderTextColor="#8c6e65"
+                  multiline={true}
+                  numberOfLines={3}
+                />
 
-              <Text style={styles.formLabel}>City *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={city}
-                onChangeText={setCity}
-                placeholder="e.g. Chennai"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>City *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={city}
+                  onChangeText={setCity}
+                  placeholder="e.g. Chennai"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>Contact Mobile *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={mobileNumber}
-                onChangeText={setMobileNumber}
-                placeholder="e.g. +91 9999999999"
-                placeholderTextColor="#8c6e65"
-                keyboardType="phone-pad"
-              />
+                <Text style={styles.formLabel}>Contact Mobile *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={mobileNumber}
+                  onChangeText={setMobileNumber}
+                  placeholder="e.g. +91 9999999999"
+                  placeholderTextColor="#8c6e65"
+                  keyboardType="phone-pad"
+                />
 
-              <Text style={styles.formLabel}>GST Number</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={gstNumber}
-                onChangeText={setGstNumber}
-                placeholder="e.g. GST27XXXXX1234A"
-                placeholderTextColor="#8c6e65"
-                autoCapitalize="characters"
-              />
+                <Text style={styles.formLabel}>GST Number</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={gstNumber}
+                  onChangeText={setGstNumber}
+                  placeholder="e.g. GST27XXXXX1234A"
+                  placeholderTextColor="#8c6e65"
+                  autoCapitalize="characters"
+                />
 
-              {/* Status Toggle — only in edit mode */}
-              {editingId !== null && (
-                <>
-                  <Text style={styles.formLabel}>Branch Status</Text>
-                  <View style={styles.statusToggleRow}>
-                    <TouchableOpacity
-                      style={[styles.statusToggleBtn, status === 'ACTIVE' && styles.statusToggleActive]}
-                      onPress={() => setStatus('ACTIVE')}
-                    >
-                      <Text style={[styles.statusToggleText, status === 'ACTIVE' && styles.statusToggleTextActive]}>
-                        ✓ Active
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.statusToggleBtn, status === 'INACTIVE' && styles.statusToggleInactive]}
-                      onPress={() => setStatus('INACTIVE')}
-                    >
-                      <Text style={[styles.statusToggleText, status === 'INACTIVE' && styles.statusToggleTextInactive]}>
-                        ✕ Inactive
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </>
-              )}
+                {/* Status Toggle — only in edit mode */}
+                {editingId !== null && (
+                  <>
+                    <Text style={styles.formLabel}>Branch Status</Text>
+                    <View style={styles.statusToggleRow}>
+                      <TouchableOpacity
+                        style={[styles.statusToggleBtn, status === 'ACTIVE' && styles.statusToggleActive]}
+                        onPress={() => setStatus('ACTIVE')}
+                      >
+                        <Text style={[styles.statusToggleText, status === 'ACTIVE' && styles.statusToggleTextActive]}>
+                          ✓ Active
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.statusToggleBtn, status === 'INACTIVE' && styles.statusToggleInactive]}
+                        onPress={() => setStatus('INACTIVE')}
+                      >
+                        <Text style={[styles.statusToggleText, status === 'INACTIVE' && styles.statusToggleTextInactive]}>
+                          ✕ Inactive
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-                  <Text style={styles.saveBtnText}>{editingId ? 'Save Changes' : 'Add Branch'}</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                    <Text style={styles.saveBtnText}>{editingId ? 'Save Changes' : 'Add Branch'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

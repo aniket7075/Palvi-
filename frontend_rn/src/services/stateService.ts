@@ -296,6 +296,10 @@ const getPurchasesFromStorage = () => {
 };
 
 export const stateService = {
+  syncData: async () => {
+    await syncFromBackendAsync();
+    return true;
+  },
   // --- AUTH SERVICES ---
   login: (email: string, password: string) => {
     const users = getStorageItem('palvi_users', INITIAL_USERS);

@@ -9,6 +9,8 @@ import {
   Modal,
   Alert,
   Linking,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Icon from '../components/Icon';
 import { stateService } from '../services/stateService';
@@ -211,20 +213,20 @@ export default function Vendors({ route }: any) {
                     <View style={styles.cardDivider} />
 
                     <View style={styles.cardFooter}>
-                      <View style={{ flexDirection: 'row', gap: 12 }}>
-                        <TouchableOpacity onPress={() => handleCall(v.mobileNumber)} style={[styles.actionBtn, { flexDirection: 'row', alignItems: 'center' }]}>
+                      <View style={styles.actionButtonsContainer}>
+                        <TouchableOpacity onPress={() => handleCall(v.mobileNumber)} style={styles.actionBtn}>
                           <Icon name="phone" color="#8c6e65" size={14} />
-                          <Text style={[styles.actionBtnText, { marginLeft: 4 }]}>{t('call')}</Text>
+                          <Text style={styles.actionBtnText}>{t('call')}</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => handleWhatsApp(v.whatsappNumber)} style={[styles.waBtn, { flexDirection: 'row', alignItems: 'center' }]}>
+                        <TouchableOpacity onPress={() => handleWhatsApp(v.whatsappNumber)} style={styles.waBtn}>
                           <Icon name="chat" color="#25D366" size={14} />
-                          <Text style={[styles.waBtnText, { marginLeft: 4 }]}>{t('whatsapp')}</Text>
+                          <Text style={styles.waBtnText}>{t('whatsapp')}</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => handleUploadBill(v.id)} style={[styles.actionBtn, { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e8f5e9' }]}>
+                        <TouchableOpacity onPress={() => handleUploadBill(v.id)} style={styles.uploadBillBtn}>
                           <Icon name="upload" color="#146e4e" size={14} />
-                          <Text style={[styles.actionBtnText, { marginLeft: 4, color: '#146e4e' }]}>Upload Bill</Text>
+                          <Text style={styles.uploadBillBtnText}>Upload Bill</Text>
                         </TouchableOpacity>
                       </View>
                       {vendorLedgers[v.id]?.totalDue > 0 && (
@@ -262,95 +264,102 @@ export default function Vendors({ route }: any) {
         animationType="slide"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t('addSupplier')}</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t('addSupplier')}</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <Text style={styles.formLabel}>{t('name')} *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={name}
-                onChangeText={setName}
-                placeholder="e.g. Fresh Veggies Wholesale"
-                placeholderTextColor="#8c6e65"
-              />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <Text style={styles.formLabel}>{t('name')} *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="e.g. Fresh Veggies Wholesale"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>{t('mobile')} *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={mobileNumber}
-                onChangeText={setMobileNumber}
-                placeholder="e.g. 9876543210"
-                placeholderTextColor="#8c6e65"
-                keyboardType="phone-pad"
-              />
+                <Text style={styles.formLabel}>{t('mobile')} *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={mobileNumber}
+                  onChangeText={setMobileNumber}
+                  placeholder="e.g. 9876543210"
+                  placeholderTextColor="#8c6e65"
+                  keyboardType="phone-pad"
+                />
 
-              <Text style={styles.formLabel}>{t('whatsapp')} *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={whatsappNumber}
-                onChangeText={setWhatsappNumber}
-                placeholder="e.g. 9876543210"
-                placeholderTextColor="#8c6e65"
-                keyboardType="phone-pad"
-              />
+                <Text style={styles.formLabel}>{t('whatsapp')} *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={whatsappNumber}
+                  onChangeText={setWhatsappNumber}
+                  placeholder="e.g. 9876543210"
+                  placeholderTextColor="#8c6e65"
+                  keyboardType="phone-pad"
+                />
 
-              <Text style={styles.formLabel}>{t('category')} *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={category}
-                onChangeText={setCategory}
-                placeholder="e.g. Vegetables, Dairy"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>{t('category')} *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={category}
+                  onChangeText={setCategory}
+                  placeholder="e.g. Vegetables, Dairy"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>{t('address')}</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={address}
-                onChangeText={setAddress}
-                placeholder="e.g. Market Yard, Pune"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>{t('address')}</Text>
+                <TextInput
+                  style={[styles.modalInput, { height: 80, textAlignVertical: 'top', paddingTop: 10 }]}
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="e.g. Market Yard, Pune"
+                  placeholderTextColor="#8c6e65"
+                  multiline={true}
+                  numberOfLines={3}
+                />
 
-              <Text style={styles.formLabel}>Assign to Groups</Text>
-              <View style={styles.checkboxContainer}>
-                {vendorGroups.map(g => (
+                <Text style={styles.formLabel}>Assign to Groups</Text>
+                <View style={styles.checkboxContainer}>
+                  {vendorGroups.map(g => (
+                    <TouchableOpacity
+                      key={g.id}
+                      style={styles.checkboxRow}
+                      onPress={() => toggleGroupSelection(g.id)}
+                    >
+                      <View style={[styles.checkbox, selectedGroups.includes(g.id) && styles.checkboxChecked]}>
+                        {selectedGroups.includes(g.id) && <Icon name="check" color="#fff" size={12} />}
+                      </View>
+                      <Text style={styles.checkboxLabel}>{g.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                  {vendorGroups.length === 0 && (
+                    <Text style={styles.emptyText}>No groups created yet.</Text>
+                  )}
+                </View>
+
+                <View style={styles.modalActions}>
                   <TouchableOpacity
-                    key={g.id}
-                    style={styles.checkboxRow}
-                    onPress={() => toggleGroupSelection(g.id)}
+                    onPress={() => setIsModalOpen(false)}
+                    style={styles.cancelBtn}
                   >
-                    <View style={[styles.checkbox, selectedGroups.includes(g.id) && styles.checkboxChecked]}>
-                      {selectedGroups.includes(g.id) && <Icon name="check" color="#fff" size={12} />}
-                    </View>
-                    <Text style={styles.checkboxLabel}>{g.name}</Text>
+                    <Text style={styles.cancelBtnText}>{t('cancel')}</Text>
                   </TouchableOpacity>
-                ))}
-                {vendorGroups.length === 0 && (
-                  <Text style={styles.emptyText}>No groups created yet.</Text>
-                )}
-              </View>
-
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  onPress={() => setIsModalOpen(false)}
-                  style={styles.cancelBtn}
-                >
-                  <Text style={styles.cancelBtnText}>{t('cancel')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={styles.saveBtn}
-                >
-                  <Text style={styles.saveBtnText}>{t('save')}</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    style={styles.saveBtn}
+                  >
+                    <Text style={styles.saveBtnText}>{t('save')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Manage Groups Modal */}
@@ -360,45 +369,50 @@ export default function Vendors({ route }: any) {
         animationType="fade"
         onRequestClose={() => setIsGroupModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Manage Vendor Groups</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Manage Vendor Groups</Text>
+              <View style={styles.modalDivider} />
 
-            <View style={styles.listContainer}>
-              {vendorGroups.map(g => (
-                <View key={g.id} style={styles.groupListItem}>
-                  <Text style={styles.groupListItemText}>{g.name}</Text>
-                  <Text style={styles.groupListItemSub}>{(g.vendorIds || []).length} Vendors</Text>
-                </View>
-              ))}
-              {vendorGroups.length === 0 && (
-                <Text style={styles.emptyText}>No groups created yet.</Text>
-              )}
-            </View>
+              <View style={styles.listContainer}>
+                {vendorGroups.map(g => (
+                  <View key={g.id} style={styles.groupListItem}>
+                    <Text style={styles.groupListItemText}>{g.name}</Text>
+                    <Text style={styles.groupListItemSub}>{(g.vendorIds || []).length} Vendors</Text>
+                  </View>
+                ))}
+                {vendorGroups.length === 0 && (
+                  <Text style={styles.emptyText}>No groups created yet.</Text>
+                )}
+              </View>
 
-            <Text style={[styles.formLabel, { marginTop: 20 }]}>Create New Group</Text>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TextInput
-                style={[styles.modalInput, { flex: 1, marginBottom: 0 }]}
-                value={newGroupName}
-                onChangeText={setNewGroupName}
-                placeholder="e.g. Morning Vendors"
-                placeholderTextColor="#8c6e65"
-              />
-              <TouchableOpacity onPress={handleCreateGroup} style={styles.createGroupBtn}>
-                <Text style={styles.createGroupBtnText}>Add</Text>
+              <Text style={[styles.formLabel, { marginTop: 20 }]}>Create New Group</Text>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <TextInput
+                  style={[styles.modalInput, { flex: 1, marginBottom: 0 }]}
+                  value={newGroupName}
+                  onChangeText={setNewGroupName}
+                  placeholder="e.g. Morning Vendors"
+                  placeholderTextColor="#8c6e65"
+                />
+                <TouchableOpacity onPress={handleCreateGroup} style={styles.createGroupBtn}>
+                  <Text style={styles.createGroupBtnText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setIsGroupModalOpen(false)}
+                style={[styles.cancelBtn, { marginTop: 24 }]}
+              >
+                <Text style={styles.cancelBtnText}>Done</Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity
-              onPress={() => setIsGroupModalOpen(false)}
-              style={[styles.cancelBtn, { marginTop: 24 }]}
-            >
-              <Text style={styles.cancelBtnText}>Done</Text>
-            </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );
@@ -483,10 +497,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    alignItems: 'center',
+    flex: 1,
   },
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
   actionBtnText: {
     fontSize: 12,
@@ -496,11 +520,28 @@ const styles = StyleSheet.create({
   waBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
   waBtnText: {
     fontSize: 12,
     fontWeight: '800',
     color: '#25D366',
+  },
+  uploadBillBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  uploadBillBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#146e4e',
   },
   emptyContainer: {
     paddingVertical: 40,

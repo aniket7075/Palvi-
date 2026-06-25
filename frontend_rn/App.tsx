@@ -5,6 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { initializeState } from './src/services/stateService';
 import { LanguageProvider } from './src/i18n/LanguageContext';
+import { ThemeProvider } from './src/theme/ThemeContext';
+import NotificationManager from './src/services/NotificationManager';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +17,13 @@ function App() {
       setLoading(false);
     };
     startApp();
+
+    // Initialize FCM notifications
+    const unsubscribe = NotificationManager.initialize();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   if (loading) {
@@ -27,12 +36,14 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <LanguageProvider>
-        <StatusBar barStyle="dark-content" backgroundColor="#fbf8f3" />
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
-      </LanguageProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <StatusBar barStyle="dark-content" backgroundColor="#fbf8f3" />
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        </LanguageProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

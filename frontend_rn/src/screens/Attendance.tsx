@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Modal,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -228,27 +230,32 @@ export default function Attendance() {
         animationType="fade"
         onRequestClose={() => setIsModalVisible(false)}
       >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => setIsModalVisible(false)}
-          style={styles.modalBackdrop}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
         >
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Staff Status</Text>
-            <View style={styles.modalDivider} />
-            {statusOptions.map((opt) => (
-              <TouchableOpacity
-                key={opt.value}
-                onPress={() => selectStatus(opt.value)}
-                style={styles.modalOption}
-              >
-                <Text style={[styles.modalOptionText, { color: getStatusColor(opt.value) }]}>
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setIsModalVisible(false)}
+            style={styles.modalBackdrop}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Staff Status</Text>
+              <View style={styles.modalDivider} />
+              {statusOptions.map((opt) => (
+                <TouchableOpacity
+                  key={opt.value}
+                  onPress={() => selectStatus(opt.value)}
+                  style={styles.modalOption}
+                >
+                  <Text style={[styles.modalOptionText, { color: getStatusColor(opt.value) }]}>
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

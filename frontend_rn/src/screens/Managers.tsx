@@ -8,6 +8,8 @@ import {
   TextInput,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from '../components/Icon';
@@ -153,83 +155,88 @@ export default function Managers() {
 
       {/* Add / Edit User Modal */}
       <Modal visible={isModalOpen} transparent animationType="slide" onRequestClose={() => setIsModalOpen(false)}>
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingId ? 'Edit User' : 'Register User'}</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{editingId ? 'Edit User' : 'Register User'}</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <Text style={styles.formLabel}>Full Name *</Text>
-              <TextInput style={styles.modalInput} value={fullName} onChangeText={setFullName} placeholder="e.g. Jane Smith" placeholderTextColor="#8c6e65" />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <Text style={styles.formLabel}>Full Name *</Text>
+                <TextInput style={styles.modalInput} value={fullName} onChangeText={setFullName} placeholder="e.g. Jane Smith" placeholderTextColor="#8c6e65" />
 
-              <Text style={styles.formLabel}>Email Address *</Text>
-              <TextInput style={styles.modalInput} value={email} onChangeText={setEmail} placeholder="e.g. jane@gmail.com" placeholderTextColor="#8c6e65" keyboardType="email-address" autoCapitalize="none" />
+                <Text style={styles.formLabel}>Email Address *</Text>
+                <TextInput style={styles.modalInput} value={email} onChangeText={setEmail} placeholder="e.g. jane@gmail.com" placeholderTextColor="#8c6e65" keyboardType="email-address" autoCapitalize="none" />
 
-              <Text style={styles.formLabel}>Mobile Number *</Text>
-              <TextInput style={styles.modalInput} value={mobileNumber} onChangeText={setMobileNumber} placeholder="e.g. +91 8888888888" placeholderTextColor="#8c6e65" keyboardType="phone-pad" />
+                <Text style={styles.formLabel}>Mobile Number *</Text>
+                <TextInput style={styles.modalInput} value={mobileNumber} onChangeText={setMobileNumber} placeholder="e.g. +91 8888888888" placeholderTextColor="#8c6e65" keyboardType="phone-pad" />
 
-              {!editingId && (
-                <>
-                  <Text style={styles.formLabel}>Password *</Text>
-                  <TextInput style={styles.modalInput} value={password} onChangeText={setPassword} secureTextEntry placeholder="Minimum 6 characters" placeholderTextColor="#8c6e65" autoCapitalize="none" />
-                </>
-              )}
+                {!editingId && (
+                  <>
+                    <Text style={styles.formLabel}>Password *</Text>
+                    <TextInput style={styles.modalInput} value={password} onChangeText={setPassword} secureTextEntry placeholder="Minimum 6 characters" placeholderTextColor="#8c6e65" autoCapitalize="none" />
+                  </>
+                )}
 
-              <Text style={styles.formLabel}>User Role *</Text>
-              <View style={styles.outletList}>
-                <TouchableOpacity 
-                  onPress={() => setRole('MANAGER')} 
-                  style={[styles.outletOption, role === 'MANAGER' && styles.activeOutletOption]}
-                >
-                  <Text style={[styles.outletOptionText, role === 'MANAGER' && styles.activeOutletOptionText]}>Manager</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  onPress={() => setRole('ADMIN')} 
-                  style={[styles.outletOption, role === 'ADMIN' && styles.activeOutletOption]}
-                >
-                  <Text style={[styles.outletOptionText, role === 'ADMIN' && styles.activeOutletOptionText]}>Admin</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  onPress={() => setRole('INVENTORY_MANAGER')} 
-                  style={[styles.outletOption, role === 'INVENTORY_MANAGER' && styles.activeOutletOption]}
-                >
-                  <Text style={[styles.outletOptionText, role === 'INVENTORY_MANAGER' && styles.activeOutletOptionText]}>Inventory Manager</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  onPress={() => setRole('FRANCHISEE')} 
-                  style={[styles.outletOption, role === 'FRANCHISEE' && styles.activeOutletOption]}
-                >
-                  <Text style={[styles.outletOptionText, role === 'FRANCHISEE' && styles.activeOutletOptionText]}>Franchisee</Text>
-                </TouchableOpacity>
-              </View>
+                <Text style={styles.formLabel}>User Role *</Text>
+                <View style={styles.outletList}>
+                  <TouchableOpacity 
+                    onPress={() => setRole('MANAGER')} 
+                    style={[styles.outletOption, role === 'MANAGER' && styles.activeOutletOption]}
+                  >
+                    <Text style={[styles.outletOptionText, role === 'MANAGER' && styles.activeOutletOptionText]}>Manager</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    onPress={() => setRole('ADMIN')} 
+                    style={[styles.outletOption, role === 'ADMIN' && styles.activeOutletOption]}
+                  >
+                    <Text style={[styles.outletOptionText, role === 'ADMIN' && styles.activeOutletOptionText]}>Admin</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    onPress={() => setRole('INVENTORY_MANAGER')} 
+                    style={[styles.outletOption, role === 'INVENTORY_MANAGER' && styles.activeOutletOption]}
+                  >
+                    <Text style={[styles.outletOptionText, role === 'INVENTORY_MANAGER' && styles.activeOutletOptionText]}>Inventory Manager</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    onPress={() => setRole('FRANCHISEE')} 
+                    style={[styles.outletOption, role === 'FRANCHISEE' && styles.activeOutletOption]}
+                  >
+                    <Text style={[styles.outletOptionText, role === 'FRANCHISEE' && styles.activeOutletOptionText]}>Franchisee</Text>
+                  </TouchableOpacity>
+                </View>
 
-              {(role === 'MANAGER' || role === 'FRANCHISEE') && (
-                <>
-                  <Text style={styles.formLabel}>Assign Branch Outlet *</Text>
-                  <View style={styles.outletList}>
-                    {outlets.map((o) => {
-                      const isSel = selectedOutletId === o.id;
-                      return (
-                        <TouchableOpacity key={o.id} onPress={() => setSelectedOutletId(o.id)} style={[styles.outletOption, isSel && styles.activeOutletOption]}>
-                          <Text style={[styles.outletOptionText, isSel && styles.activeOutletOptionText]}>{o.name}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </>
-              )}
+                {(role === 'MANAGER' || role === 'FRANCHISEE') && (
+                  <>
+                    <Text style={styles.formLabel}>Assign Branch Outlet *</Text>
+                    <View style={styles.outletList}>
+                      {outlets.map((o) => {
+                        const isSel = selectedOutletId === o.id;
+                        return (
+                          <TouchableOpacity key={o.id} onPress={() => setSelectedOutletId(o.id)} style={[styles.outletOption, isSel && styles.activeOutletOption]}>
+                            <Text style={[styles.outletOptionText, isSel && styles.activeOutletOptionText]}>{o.name}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </>
+                )}
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-                  <Text style={styles.saveBtnText}>{editingId ? 'Save Changes' : 'Register'}</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                    <Text style={styles.saveBtnText}>{editingId ? 'Save Changes' : 'Register'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

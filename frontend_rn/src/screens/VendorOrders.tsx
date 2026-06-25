@@ -10,6 +10,8 @@ import {
   Linking,
   ActivityIndicator,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -396,37 +398,42 @@ export default function VendorOrders() {
 
       {/* Item Selection Modal */}
       <Modal visible={isItemModalOpen} transparent={true} animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Inventory Item</Text>
-              <TouchableOpacity onPress={() => setIsItemModalOpen(false)}>
-                <Icon name="close" color="#3d251e" size={20} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={{ maxHeight: 300 }}>
-              {inventoryItems.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    setItemName(item.name);
-                    setUnit(item.unit);
-                    setIsItemModalOpen(false);
-                  }}
-                >
-                  <Text style={styles.modalOptionText}>{item.name}</Text>
-                  <Text style={styles.modalOptionSubText}>Current Stock: {item.quantity} {item.unit}</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Select Inventory Item</Text>
+                <TouchableOpacity onPress={() => setIsItemModalOpen(false)}>
+                  <Icon name="close" color="#3d251e" size={20} />
                 </TouchableOpacity>
-              ))}
-              {inventoryItems.length === 0 && (
-                <Text style={{ textAlign: 'center', color: '#8c6e65', marginTop: 20 }}>
-                  No inventory items found. Add items from the Inventory tab.
-                </Text>
-              )}
-            </ScrollView>
+              </View>
+              <ScrollView style={{ maxHeight: 300 }}>
+                {inventoryItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.modalOption}
+                    onPress={() => {
+                      setItemName(item.name);
+                      setUnit(item.unit);
+                      setIsItemModalOpen(false);
+                    }}
+                  >
+                    <Text style={styles.modalOptionText}>{item.name}</Text>
+                    <Text style={styles.modalOptionSubText}>Current Stock: {item.quantity} {item.unit}</Text>
+                  </TouchableOpacity>
+                ))}
+                {inventoryItems.length === 0 && (
+                  <Text style={{ textAlign: 'center', color: '#8c6e65', marginTop: 20 }}>
+                    No inventory items found. Add items from the Inventory tab.
+                  </Text>
+                )}
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
     </LayoutWrapper>

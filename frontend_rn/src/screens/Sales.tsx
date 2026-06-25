@@ -8,6 +8,8 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Icon from '../components/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -250,119 +252,124 @@ export default function Sales() {
         animationType="slide"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Record Daily Channel Sales</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Record Daily Channel Sales</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Cash Sales (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={cashSale}
-                    onChangeText={setCashSale}
-                    placeholder="e.g. 15000"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Cash Sales (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={cashSale}
+                      onChangeText={setCashSale}
+                      placeholder="e.g. 15000"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>UPI Sales (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={upiSale}
+                      onChangeText={setUpiSale}
+                      placeholder="e.g. 20000"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>UPI Sales (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={upiSale}
-                    onChangeText={setUpiSale}
-                    placeholder="e.g. 20000"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
 
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Card Sales (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={cardSale}
-                    onChangeText={setCardSale}
-                    placeholder="e.g. 5000"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Card Sales (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={cardSale}
+                      onChangeText={setCardSale}
+                      placeholder="e.g. 5000"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Swiggy Sales (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={swiggySale}
+                      onChangeText={setSwiggySale}
+                      placeholder="e.g. 8000"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Swiggy Sales (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={swiggySale}
-                    onChangeText={setSwiggySale}
-                    placeholder="e.g. 8000"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
 
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Zomato Sales (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={zomatoSale}
-                    onChangeText={setZomatoSale}
-                    placeholder="e.g. 9500"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Zomato Sales (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={zomatoSale}
+                      onChangeText={setZomatoSale}
+                      placeholder="e.g. 9500"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>Other Online (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={otherOnlineSale}
+                      onChangeText={setOtherOnlineSale}
+                      placeholder="e.g. 1200"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>Other Online (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={otherOnlineSale}
-                    onChangeText={setOtherOnlineSale}
-                    placeholder="e.g. 1200"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
 
-              {/* Complimentary Meals Field */}
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={[styles.formLabel, { color: '#d32f2f' }]}>Complimentary Meals / Free Guests (₹)</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={complimentarySale}
-                    onChangeText={setComplimentarySale}
-                    placeholder="e.g. 500"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+                {/* Complimentary Meals Field */}
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={[styles.formLabel, { color: '#d32f2f' }]}>Complimentary Meals / Free Guests (₹)</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={complimentarySale}
+                      onChangeText={setComplimentarySale}
+                      placeholder="e.g. 500"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
-              </View>
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  onPress={() => setIsModalOpen(false)}
-                  style={styles.cancelBtn}
-                >
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={styles.saveBtn}
-                >
-                  <Text style={styles.saveBtnText}>Audit Entry</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    onPress={() => setIsModalOpen(false)}
+                    style={styles.cancelBtn}
+                  >
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    style={styles.saveBtn}
+                  >
+                    <Text style={styles.saveBtnText}>Audit Entry</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

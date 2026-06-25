@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Share } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 // @ts-ignore
@@ -79,6 +79,23 @@ export default function DailyReportScreen() {
   const outlets = stateService.getOutlets();
   const outletName = outlets.find((o: any) => o.id === outletId)?.name || `Outlet #${outletId}`;
 
+  const handleShare = async () => {
+    if (!report) return;
+    try {
+      const shareMessage = `*PALVI HOTEL - DAILY EOD REPORT*\n---------------------------------------\n*Outlet Name:* ${outletName}\n*Date:* ${date}\n\n*1. FINANCIAL SUMMARY*\n- *Net Cash in Hand:* ₹${report.netCash.toLocaleString('en-IN')}\n- *Grand Sales Total:* ₹${report.sales.grandSalesTotal.toLocaleString('en-IN')}\n- *Total Expenses:* ₹${report.expenses.total.toLocaleString('en-IN')}\n- *Total Purchases:* ₹${report.purchases.total.toLocaleString('en-IN')}\n\n*2. SALES BREAKDOWN*\n- Cash Counter: ₹${report.sales.totalCash.toLocaleString('en-IN')}\n- UPI / QR Payments: ₹${report.sales.totalUpi.toLocaleString('en-IN')}\n- Card Payments: ₹${report.sales.totalCard.toLocaleString('en-IN')}\n- Delivery Apps (Swiggy/Zomato): ₹${report.sales.totalDelivery.toLocaleString('en-IN')}\n- Other Online Orders: ₹${report.sales.totalOnline.toLocaleString('en-IN')}\n\n*3. OPERATIONS CHECKLIST*\n- Completed: ${report.checklists.completed} of ${report.checklists.total} Tasks\n\n*4. EXPENSE DETAILS*\n${report.expenses.list.length > 0 
+  ? report.expenses.list.map((e: any) => `- ${e.name}: ₹${e.amount}`).join('\n')
+  : 'No expenses recorded today.'}\n\n*5. PURCHASE DETAILS*\n${report.purchases.list.length > 0 
+  ? report.purchases.list.map((p: any) => `- ${p.itemName} (${p.quantity}): ₹${p.totalAmount}`).join('\n')
+  : 'No purchases recorded today.'}\n---------------------------------------\nGenerated via Palvi App.`;
+
+      await Share.share({
+        message: shareMessage,
+      });
+    } catch (error) {
+      console.log('Error sharing EOD report:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -89,7 +106,7 @@ export default function DailyReportScreen() {
           <Text style={styles.headerTitle}>Daily EOD Report</Text>
           <Text style={styles.headerSubtitle}>{outletName} • {date}</Text>
         </View>
-        <TouchableOpacity onPress={() => {}} style={styles.shareButton}>
+        <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
           <Icon name="share-2" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -103,7 +120,7 @@ export default function DailyReportScreen() {
           </View>
           <View style={styles.summaryInfo}>
             <Text style={styles.summaryTitle}>Net Cash In Hand</Text>
-            <Text style={styles.summaryAmount}>₹{report.netCash.toLocaleString('en-IN')}</Text>
+            <Text style={styles.summaryAmount} numberOfLines={1} adjustsFontSizeToFit>₹{report.netCash.toLocaleString('en-IN')}</Text>
             <Text style={styles.summaryDesc}>(Cash Sales - Cash Expenses)</Text>
           </View>
         </View>
@@ -113,7 +130,7 @@ export default function DailyReportScreen() {
           <View style={styles.cardHeader}>
             <Icon name="trending-up" size={18} color="#10b981" />
             <Text style={styles.cardTitle}>Sales Revenue</Text>
-            <Text style={styles.cardTotal}>₹{report.sales.grandSalesTotal.toLocaleString('en-IN')}</Text>
+            <Text style={styles.cardTotal} numberOfLines={1} adjustsFontSizeToFit>₹{report.sales.grandSalesTotal.toLocaleString('en-IN')}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>

@@ -9,6 +9,8 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -171,57 +173,62 @@ export default function Expenses() {
         animationType="slide"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Log Operational Expense</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Log Operational Expense</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <Text style={styles.formLabel}>Expense Name *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={name}
-                onChangeText={setName}
-                placeholder="e.g. Gas Cylinder Refill"
-                placeholderTextColor="#8c6e65"
-              />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <Text style={styles.formLabel}>Expense Name *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="e.g. Gas Cylinder Refill"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>Amount (₹) *</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={amount}
-                onChangeText={setAmount}
-                placeholder="e.g. 1250"
-                placeholderTextColor="#8c6e65"
-                keyboardType="numeric"
-              />
+                <Text style={styles.formLabel}>Amount (₹) *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={amount}
+                  onChangeText={setAmount}
+                  placeholder="e.g. 1250"
+                  placeholderTextColor="#8c6e65"
+                  keyboardType="numeric"
+                />
 
-              <Text style={styles.formLabel}>Description/Notes</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={description}
-                onChangeText={setDescription}
-                placeholder="e.g. Paid cash to delivery driver"
-                placeholderTextColor="#8c6e65"
-              />
+                <Text style={styles.formLabel}>Description/Notes</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={description}
+                  onChangeText={setDescription}
+                  placeholder="e.g. Paid cash to delivery driver"
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  onPress={() => setIsModalOpen(false)}
-                  style={styles.cancelBtn}
-                >
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={styles.saveBtn}
-                >
-                  <Text style={styles.saveBtnText}>Log Expense</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    onPress={() => setIsModalOpen(false)}
+                    style={styles.cancelBtn}
+                  >
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    style={styles.saveBtn}
+                  >
+                    <Text style={styles.saveBtnText}>Log Expense</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

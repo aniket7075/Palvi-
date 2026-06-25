@@ -9,6 +9,8 @@ import {
   Modal,
   TextInput,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -220,7 +222,7 @@ export default function Inventory() {
                   <View style={styles.cardFooter}>
                     <View>
                       <Text style={styles.qtyLabel}>{t('inStock')}</Text>
-                      <Text style={[styles.qtyValue, isLow && styles.lowStockText]}>
+                      <Text style={[styles.qtyValue, isLow && styles.lowStockText]} numberOfLines={1} adjustsFontSizeToFit>
                         {item.quantity} {item.unit}
                       </Text>
                     </View>
@@ -288,99 +290,104 @@ export default function Inventory() {
         animationType="slide"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingId ? t('editItem') : t('addItem')}</Text>
-            <View style={styles.modalDivider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{editingId ? t('editItem') : t('addItem')}</Text>
+              <View style={styles.modalDivider} />
 
-            <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
-              <Text style={styles.formLabel}>{t('itemName')}</Text>
-              <TextInput
-                style={styles.modalInput}
-                value={name}
-                onChangeText={setName}
-                placeholder={t('egOnion')}
-                placeholderTextColor="#8c6e65"
-              />
+              <ScrollView contentContainerStyle={styles.modalFormScroll} keyboardShouldPersistTaps="handled">
+                <Text style={styles.formLabel}>{t('itemName')}</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder={t('egOnion')}
+                  placeholderTextColor="#8c6e65"
+                />
 
-              <Text style={styles.formLabel}>{t('category')}</Text>
-              <View style={styles.categoryGrid}>
-                {formCategories.map((cat) => {
-                  const isSel = itemCategory === cat;
-                  return (
-                    <TouchableOpacity
-                      key={cat}
-                      onPress={() => setItemCategory(cat)}
-                      style={[styles.categoryChoice, isSel && styles.activeCategoryChoice]}
-                    >
-                      <Text style={[styles.categoryChoiceText, isSel && styles.activeCategoryChoiceText]}>
-                        {cat}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>{t('currentQty')}</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={quantity}
-                    onChangeText={setQuantity}
-                    placeholder="e.g. 10"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+                <Text style={styles.formLabel}>{t('category')}</Text>
+                <View style={styles.categoryGrid}>
+                  {formCategories.map((cat) => {
+                    const isSel = itemCategory === cat;
+                    return (
+                      <TouchableOpacity
+                        key={cat}
+                        onPress={() => setItemCategory(cat)}
+                        style={[styles.categoryChoice, isSel && styles.activeCategoryChoice]}
+                      >
+                        <Text style={[styles.categoryChoiceText, isSel && styles.activeCategoryChoiceText]}>
+                          {cat}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>{t('unit')}</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={unit}
-                    onChangeText={setUnit}
-                    placeholder="e.g. KG"
-                    placeholderTextColor="#8c6e65"
-                  />
-                </View>
-              </View>
 
-              <View style={styles.formRow}>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>{t('priceUnit')}</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={purchasePrice}
-                    onChangeText={setPurchasePrice}
-                    placeholder="e.g. 40"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>{t('currentQty')}</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={quantity}
+                      onChangeText={setQuantity}
+                      placeholder="e.g. 10"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>{t('unit')}</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={unit}
+                      onChangeText={setUnit}
+                      placeholder="e.g. KG"
+                      placeholderTextColor="#8c6e65"
+                    />
+                  </View>
                 </View>
-                <View style={styles.rowItem}>
-                  <Text style={styles.formLabel}>{t('minStock')}</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={minStock}
-                    onChangeText={setMinStock}
-                    placeholder="e.g. 5"
-                    placeholderTextColor="#8c6e65"
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
-                  <Text style={styles.cancelBtnText}>{t('cancel')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-                  <Text style={styles.saveBtnText}>{editingId ? t('saveChanges') : t('addItem')}</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+                <View style={styles.formRow}>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>{t('priceUnit')}</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={purchasePrice}
+                      onChangeText={setPurchasePrice}
+                      placeholder="e.g. 40"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text style={styles.formLabel}>{t('minStock')}</Text>
+                    <TextInput
+                      style={styles.modalInput}
+                      value={minStock}
+                      onChangeText={setMinStock}
+                      placeholder="e.g. 5"
+                      placeholderTextColor="#8c6e65"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
+                    <Text style={styles.cancelBtnText}>{t('cancel')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                    <Text style={styles.saveBtnText}>{editingId ? t('saveChanges') : t('addItem')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Manage Categories Modal */}
@@ -390,60 +397,65 @@ export default function Inventory() {
         animationType="slide"
         onRequestClose={() => setIsCategoryModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Manage Categories</Text>
-            <View style={styles.modalDivider} />
-            
-            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
-              <TextInput
-                style={[styles.modalInput, { flex: 1, marginBottom: 0 }]}
-                value={newCategoryName}
-                onChangeText={setNewCategoryName}
-                placeholder="New Category Name"
-                placeholderTextColor="#8c6e65"
-              />
-              <TouchableOpacity
-                onPress={() => {
-                  if (newCategoryName.trim()) {
-                    stateService.addCategory(newCategoryName.trim());
-                    setCategories(stateService.getCategories());
-                    setNewCategoryName('');
-                  }
-                }}
-                style={[styles.saveBtn, { flex: 0, paddingHorizontal: 16 }]}
-              >
-                <Text style={styles.saveBtnText}>Add</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Manage Categories</Text>
+              <View style={styles.modalDivider} />
+              
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                <TextInput
+                  style={[styles.modalInput, { flex: 1, marginBottom: 0 }]}
+                  value={newCategoryName}
+                  onChangeText={setNewCategoryName}
+                  placeholder="New Category Name"
+                  placeholderTextColor="#8c6e65"
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    if (newCategoryName.trim()) {
+                      stateService.addCategory(newCategoryName.trim());
+                      setCategories(stateService.getCategories());
+                      setNewCategoryName('');
+                    }
+                  }}
+                  style={[styles.saveBtn, { flex: 0, paddingHorizontal: 16 }]}
+                >
+                  <Text style={styles.saveBtnText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={{ maxHeight: 200, marginBottom: 16 }}>
+                {categories.map((cat: any) => (
+                  <View key={cat.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#ebdcd3' }}>
+                    <Text style={{ fontSize: 14, color: '#3d251e', fontWeight: '700' }}>{cat.name}</Text>
+                    <TouchableOpacity onPress={() => {
+                      Alert.alert('Delete Category', `Are you sure you want to delete "${cat.name}"?`, [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Delete', style: 'destructive', onPress: () => {
+                          stateService.deleteCategory(cat.id);
+                          setCategories(stateService.getCategories());
+                          if (category === cat.name) {
+                            setCategory('ALL');
+                          }
+                        }}
+                      ]);
+                    }}>
+                      <Icon name="trash" color="#d32f2f" size={16} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+
+              <TouchableOpacity onPress={() => setIsCategoryModalOpen(false)} style={styles.cancelBtn}>
+                <Text style={styles.cancelBtnText}>Close</Text>
               </TouchableOpacity>
             </View>
-
-            <ScrollView style={{ maxHeight: 200, marginBottom: 16 }}>
-              {categories.map((cat: any) => (
-                <View key={cat.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#ebdcd3' }}>
-                  <Text style={{ fontSize: 14, color: '#3d251e', fontWeight: '700' }}>{cat.name}</Text>
-                  <TouchableOpacity onPress={() => {
-                    Alert.alert('Delete Category', `Are you sure you want to delete "${cat.name}"?`, [
-                      { text: 'Cancel', style: 'cancel' },
-                      { text: 'Delete', style: 'destructive', onPress: () => {
-                        stateService.deleteCategory(cat.id);
-                        setCategories(stateService.getCategories());
-                        if (category === cat.name) {
-                          setCategory('ALL');
-                        }
-                      }}
-                    ]);
-                  }}>
-                    <Icon name="trash" color="#d32f2f" size={16} />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity onPress={() => setIsCategoryModalOpen(false)} style={styles.cancelBtn}>
-              <Text style={styles.cancelBtnText}>Close</Text>
-            </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </LayoutWrapper>
   );

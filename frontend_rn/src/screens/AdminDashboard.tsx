@@ -188,14 +188,14 @@ export default function AdminDashboard() {
                 <Icon name="outlet" color="#146e4e" size={24} />
               </View>
               <Text style={styles.summaryLabel}>Outlets</Text>
-              <Text style={styles.summaryValue}>{metrics.totalOutlets}</Text>
+              <Text style={styles.summaryValue} numberOfLines={1} adjustsFontSizeToFit>{metrics.totalOutlets}</Text>
             </View>
             <View style={styles.summaryCard}>
               <View style={{ marginBottom: 6 }}>
                 <Icon name="users" color="#146e4e" size={24} />
               </View>
               <Text style={styles.summaryLabel}>Staff</Text>
-              <Text style={styles.summaryValue}>{metrics.totalStaff}</Text>
+              <Text style={styles.summaryValue} numberOfLines={1} adjustsFontSizeToFit>{metrics.totalStaff}</Text>
             </View>
             <TouchableOpacity 
               style={[styles.summaryCard, lowStockItems.length > 0 && styles.alertSummaryCard]}
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
                 <Icon name="alert" color={lowStockItems.length > 0 ? '#0d4e37' : '#146e4e'} size={24} />
               </View>
               <Text style={[styles.summaryLabel, lowStockItems.length > 0 && { color: '#0d4e37' }]}>Stock Alerts</Text>
-              <Text style={[styles.summaryValue, lowStockItems.length > 0 && { color: '#0d4e37' }]}>{lowStockItems.length}</Text>
+              <Text style={[styles.summaryValue, lowStockItems.length > 0 && { color: '#0d4e37' }]} numberOfLines={1} adjustsFontSizeToFit>{lowStockItems.length}</Text>
             </TouchableOpacity>
           </View>
 
@@ -223,9 +223,9 @@ export default function AdminDashboard() {
           {/* Grand Revenue Splits Card */}
           <View style={styles.ledgerCard}>
             <View style={styles.ledgerHeader}>
-              <View>
+              <View style={{ flex: 1, marginRight: 8 }}>
                 <Text style={styles.ledgerCaption}>AGGREGATE BUSINESS REVENUE</Text>
-                <Text style={styles.ledgerAmount}>₹{metrics.totalSales.toLocaleString('en-IN')}</Text>
+                <Text style={styles.ledgerAmount} numberOfLines={1} adjustsFontSizeToFit>₹{metrics.totalSales.toLocaleString('en-IN')}</Text>
               </View>
               <Icon name="wallet" color="#146e4e" size={24} />
             </View>
@@ -251,7 +251,7 @@ export default function AdminDashboard() {
                       <Text style={styles.splitIconName} numberOfLines={1}>{item.name}</Text>
                     </View>
                     <View style={styles.splitRight}>
-                      <Text style={styles.splitAmt}>₹{item.val.toLocaleString('en-IN')}</Text>
+                      <Text style={styles.splitAmt} numberOfLines={1} adjustsFontSizeToFit>₹{item.val.toLocaleString('en-IN')}</Text>
                       <View style={[styles.pctBadge, { backgroundColor: `${item.color}18` }]}>
                         <Text style={[styles.pctBadgeText, { color: item.color }]}>{pct}%</Text>
                       </View>
@@ -270,10 +270,10 @@ export default function AdminDashboard() {
           <View style={styles.sideRow}>
             <View style={styles.sideCard}>
               <View style={styles.sideHeader}>
-                <Text style={styles.sideLabel}>Total Purchases</Text>
+                <Text style={styles.sideLabel} numberOfLines={1} ellipsizeMode="tail">Total Purchases</Text>
                 <Icon name="shopping" color="#a67c6d" size={20} />
               </View>
-              <Text style={styles.sideValue}>₹{metrics.totalPurchases.toLocaleString('en-IN')}</Text>
+              <Text style={styles.sideValue} numberOfLines={1} adjustsFontSizeToFit>₹{metrics.totalPurchases.toLocaleString('en-IN')}</Text>
               <Text style={styles.ratioText}>Ratio: {purchaseRate}% of sales</Text>
               <View style={styles.progressBarBg}>
                 <View style={[styles.progressBarFill, { width: `${Math.min(purchaseRate, 100)}%`, backgroundColor: '#a67c6d' }]} />
@@ -282,10 +282,10 @@ export default function AdminDashboard() {
 
             <View style={styles.sideCard}>
               <View style={styles.sideHeader}>
-                <Text style={styles.sideLabel}>Total Expenses</Text>
+                <Text style={styles.sideLabel} numberOfLines={1} ellipsizeMode="tail">Total Expenses</Text>
                 <Icon name="expense" color="#0d4e37" size={20} />
               </View>
-              <Text style={[styles.sideValue, { color: '#0d4e37' }]}>₹{metrics.totalExpenses.toLocaleString('en-IN')}</Text>
+              <Text style={[styles.sideValue, { color: '#0d4e37' }]} numberOfLines={1} adjustsFontSizeToFit>₹{metrics.totalExpenses.toLocaleString('en-IN')}</Text>
               <Text style={styles.ratioText}>Ratio: {expenseRate}% of sales</Text>
               <View style={styles.progressBarBg}>
                 <View style={[styles.progressBarFill, { width: `${Math.min(expenseRate, 100)}%`, backgroundColor: '#0d4e37' }]} />

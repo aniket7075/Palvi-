@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { stateService } from '../services/stateService';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useTheme } from '../theme/ThemeContext';
 import Icon from './Icon';
 
 const { width, height } = Dimensions.get('window');
@@ -30,6 +31,7 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const { language, setLanguage, t } = useLanguage();
+  const { isDark, theme, toggleTheme } = useTheme();
 
   const [role, setRole] = useState('MANAGER');
   const [outletName, setOutletName] = useState('');
@@ -158,29 +160,35 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
   ];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.card} />
       
       {/* 1. Header Bar */}
-      <View style={[styles.header, { height: (Platform.OS === 'ios' ? 44 : 56) + insets.top, paddingTop: insets.top }]}>
+      <View style={[styles.header, { height: (Platform.OS === 'ios' ? 44 : 56) + insets.top, paddingTop: insets.top, backgroundColor: theme.card, borderBottomColor: theme.border, borderBottomWidth: 1 }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-            <Icon name="menu" color="#146e4e" size={24} />
+            <Icon name="menu" color={theme.primary} size={24} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
+          <Text style={[styles.headerTitle, { color: theme.text }]} numberOfLines={1}>
             {title}
           </Text>
         </View>
         
         <View style={styles.headerRight}>
           <TouchableOpacity 
-            style={styles.langToggleBtn} 
+            style={[styles.langToggleBtn, { backgroundColor: theme.surface, borderColor: theme.border, marginRight: 8 }]} 
+            onPress={toggleTheme}
+          >
+            <Text style={[styles.langToggleText, { color: theme.primary }]}>{isDark ? '☀️' : '🌙'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.langToggleBtn, { backgroundColor: theme.surface, borderColor: theme.border }]} 
             onPress={() => setLanguage(language === 'en' ? 'mr' : 'en')}
           >
-            <Text style={styles.langToggleText}>{language === 'en' ? 'अ' : 'A'}</Text>
+            <Text style={[styles.langToggleText, { color: theme.primary }]}>{language === 'en' ? 'अ' : 'A'}</Text>
           </TouchableOpacity>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleBadgeText}>
+          <View style={[styles.roleBadge, { backgroundColor: isDark ? theme.border : '#ebdcd3' }]}>
+            <Text style={[styles.roleBadgeText, { color: theme.text }]} numberOfLines={1} ellipsizeMode="tail">
               {role === 'ADMIN' ? 'Admin HQ' : (outletName || 'Manager')}
             </Text>
           </View>
@@ -188,7 +196,7 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
       </View>
 
       {/* 2. Main Content */}
-      <View style={[styles.content, { paddingBottom: showBottomNav ? 56 + insets.bottom : 0 }]}>
+      <View style={[styles.content, { paddingBottom: showBottomNav ? 56 + insets.bottom : 0, backgroundColor: theme.background }]}>
         {children}
       </View>
 
@@ -196,7 +204,7 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
       {showBottomNav && (
         <View style={[
           styles.bottomNav,
-          { height: 60 + insets.bottom, paddingBottom: insets.bottom }
+          { height: 60 + insets.bottom, paddingBottom: insets.bottom, backgroundColor: theme.card, borderTopColor: theme.border }
         ]}>
           {[
             { label: 'Home', icon: 'home' },
@@ -205,7 +213,7 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
             { label: 'Inventory', icon: 'inventory' },
           ].map((tab, idx) => {
             const isSelected = activeTabIdx === idx;
-            const tabColor = isSelected ? '#146e4e' : '#9e8a84';
+            const tabColor = isSelected ? theme.primary : theme.textSecondary;
             return (
               <TouchableOpacity
                 key={tab.label}
@@ -213,11 +221,11 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
                 style={styles.bottomTab}
                 activeOpacity={0.7}
               >
-                {isSelected && <View style={styles.activeTabIndicator} />}
+                {isSelected && <View style={[styles.activeTabIndicator, { backgroundColor: theme.primary }]} />}
                 <View style={{ marginBottom: 3 }}>
                   <Icon name={tab.icon} color={tabColor} size={22} />
                 </View>
-                <Text style={[styles.bottomTabLabel, isSelected && styles.activeTabColor]}>
+                <Text style={[styles.bottomTabLabel, { color: tabColor }, isSelected && { fontWeight: '900' }]}>
                   {tab.label}
                 </Text>
               </TouchableOpacity>
@@ -236,23 +244,23 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
           <Animated.View
             style={[
               styles.drawerContainer,
-              { transform: [{ translateX: drawerAnim }], paddingTop: insets.top + 16 }
+              { transform: [{ translateX: drawerAnim }], paddingTop: insets.top + 16, backgroundColor: theme.card, borderRightColor: theme.border, borderRightWidth: 1 }
             ]}
           >
             {/* Drawer Header Info */}
-            <View style={styles.drawerHeader}>
-              <View style={styles.avatar}>
+            <View style={[styles.drawerHeader, { borderBottomColor: theme.border }]}>
+              <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
                 <Text style={styles.avatarText}>P</Text>
               </View>
               <View style={styles.drawerUserInfo}>
-                <Text style={styles.drawerName}>{fullName || 'Palvi User'}</Text>
-                <Text style={styles.drawerRole}>
+                <Text style={[styles.drawerName, { color: theme.text }]}>{fullName || 'Palvi User'}</Text>
+                <Text style={[styles.drawerRole, { color: theme.textSecondary }]}>
                   {role === 'ADMIN' ? 'Administrator' : (outletName || 'Outlet Manager')}
                 </Text>
               </View>
             </View>
 
-            <View style={styles.drawerDivider} />
+            <View style={[styles.drawerDivider, { backgroundColor: theme.border }]} />
 
             {/* Menu List */}
             <ScrollView style={styles.drawerScrollView} contentContainerStyle={styles.drawerScrollContent}>
@@ -263,16 +271,19 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
                   <TouchableOpacity
                     key={item.text}
                     onPress={() => navigateTo(item.screen)}
-                    style={[styles.drawerItem, isActive && styles.activeDrawerItem]}
+                    style={[
+                      styles.drawerItem,
+                      isActive && { backgroundColor: isDark ? 'rgba(52, 211, 153, 0.08)' : 'rgba(20, 110, 78, 0.08)' }
+                    ]}
                   >
                     <View style={styles.drawerItemIconContainer}>
-                      <Icon name={item.icon} color={isActive ? '#146e4e' : '#3d251e'} size={18} />
+                      <Icon name={item.icon} color={isActive ? theme.primary : theme.text} size={18} />
                     </View>
-                    <Text style={[styles.drawerItemText, isActive && styles.activeDrawerItemText]}>
+                    <Text style={[styles.drawerItemText, { color: isActive ? theme.primary : theme.text }]}>
                       {item.text}
                     </Text>
                     {item.badge !== undefined && item.badge > 0 ? (
-                      <View style={styles.badge}>
+                      <View style={[styles.badge, { backgroundColor: theme.error }]}>
                         <Text style={styles.badgeText}>{item.badge}</Text>
                       </View>
                     ) : null}
@@ -280,18 +291,18 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
                 );
               })}
 
-              <View style={styles.drawerDivider} />
+              <View style={[styles.drawerDivider, { backgroundColor: theme.border }]} />
 
               {/* Drawer Logout */}
               <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                 <View style={styles.drawerItemIconContainer}>
-                  <Icon name="logout" color="#d32f2f" size={18} />
+                  <Icon name="logout" color={theme.error} size={18} />
                 </View>
-                <Text style={styles.logoutText}>{t('logout')}</Text>
+                <Text style={[styles.logoutText, { color: theme.error }]}>{t('logout')}</Text>
               </TouchableOpacity>
 
               <View style={styles.versionContainer}>
-                <Text style={styles.versionText}>{t('version')} 1.0.0</Text>
+                <Text style={[styles.versionText, { color: theme.textSecondary }]}>{t('version')} 1.0.0</Text>
               </View>
             </ScrollView>
           </Animated.View>
@@ -345,6 +356,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
+    maxWidth: 130,
+    justifyContent: 'center',
   },
   roleBadgeText: {
     fontSize: 11,

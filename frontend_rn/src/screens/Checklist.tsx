@@ -10,6 +10,8 @@ import {
   Modal,
   TextInput,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
@@ -247,29 +249,34 @@ export default function Checklist() {
         animationType="fade"
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add {activeTab === 'OPENING' ? 'Opening' : 'Closing'} Task</Text>
-            
-            <Text style={styles.formLabel}>Task Name *</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={newTaskName}
-              onChangeText={setNewTaskName}
-              placeholder="e.g. Turn off AC"
-              placeholderTextColor="#8c6e65"
-            />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Add {activeTab === 'OPENING' ? 'Opening' : 'Closing'} Task</Text>
+              
+              <Text style={styles.formLabel}>Task Name *</Text>
+              <TextInput
+                style={styles.modalInput}
+                value={newTaskName}
+                onChangeText={setNewTaskName}
+                placeholder="e.g. Turn off AC"
+                placeholderTextColor="#8c6e65"
+              />
 
-            <View style={styles.modalActions}>
-              <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
-                <Text style={styles.cancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleAddTask} style={styles.saveBtn}>
-                <Text style={styles.saveBtnText}>Save</Text>
-              </TouchableOpacity>
+              <View style={styles.modalActions}>
+                <TouchableOpacity onPress={() => setIsModalOpen(false)} style={styles.cancelBtn}>
+                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleAddTask} style={styles.saveBtn}>
+                  <Text style={styles.saveBtnText}>Save</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
     </LayoutWrapper>
