@@ -6,7 +6,9 @@ import com.google.firebase.FirebaseOptions;
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class FirebaseConfig {
@@ -16,11 +18,19 @@ public class FirebaseConfig {
         try {
             // Check if already initialized
             if (FirebaseApp.getApps().isEmpty()) {
-                InputStream serviceAccount = 
-                    getClass().getClassLoader().getResourceAsStream("palvi-hotel-firebase-adminsdk-fbsvc-7a8c5aef71.json");
+                InputStream serviceAccount = null;
+                
+                // 1. Check if we have an Environment Variable (For Render/Production)
+                String firebaseEnv = System.getenv("FIREBASE_CREDENTIALS");
+                if (firebaseEnv != null && !firebaseEnv.trim().isEmpty()) {
+                    serviceAccount = new ByteArrayInputStream(firebaseEnv.getBytes(StandardCharsets.UTF_8));
+                } else {
+                    // 2. Fallback to local file (For Local Development)
+                    serviceAccount = getClass().getClassLoader().getResourceAsStream("palvi-hotel-firebase-adminsdk-fbsvc-7a8c5aef71.json");
+                }
                 
                 if (serviceAccount == null) {
-                    System.err.println("WARNING: palvi-hotel-firebase-adminsdk-fbsvc-7a8c5aef71.json not found in resources folder. Firebase Push Notifications will not work.");
+                    System.err.println("WARNING: Firebase credentials not found. Set FIREBASE_CREDENTIALS env var or add the json file. Notifications will not work.");
                     return;
                 }
 
