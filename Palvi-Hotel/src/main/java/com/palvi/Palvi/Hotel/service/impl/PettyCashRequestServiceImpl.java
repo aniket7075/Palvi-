@@ -7,6 +7,7 @@ import com.palvi.Palvi.Hotel.exception.ResourceNotFoundException;
 import com.palvi.Palvi.Hotel.mapper.PettyCashRequestMapper;
 import com.palvi.Palvi.Hotel.repository.OutletRepository;
 import com.palvi.Palvi.Hotel.repository.PettyCashRequestRepository;
+import com.palvi.Palvi.Hotel.service.NotificationService;
 import com.palvi.Palvi.Hotel.service.PettyCashRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class PettyCashRequestServiceImpl implements PettyCashRequestService {
     @Autowired
     private OutletRepository outletRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public PettyCashRequestDto createRequest(PettyCashRequestDto dto) {
         PettyCashRequest request = pettyCashRequestMapper.toEntity(dto);
@@ -39,6 +43,17 @@ public class PettyCashRequestServiceImpl implements PettyCashRequestService {
 
         request.setStatus("PENDING");
         PettyCashRequest saved = pettyCashRequestRepository.save(request);
+
+        try {
+            notificationService.createNotification(
+                "NEW_PETTY_CASH_REQUEST",
+                "New Petty Cash Request",
+                "A top-up request of ₹" + saved.getAmount() + " was requested for outlet: " + outlet.getOutletName()
+            );
+        } catch (Exception e) {
+            // ignore and continue
+        }
+
         return pettyCashRequestMapper.toDto(saved);
     }
 
@@ -68,6 +83,17 @@ public class PettyCashRequestServiceImpl implements PettyCashRequestService {
         request.setResolvedDate(LocalDate.now());
 
         PettyCashRequest saved = pettyCashRequestRepository.save(request);
+
+        try {
+            notificationService.createNotification(
+                "PETTY_CASH_AUDIT",
+                "Petty Cash Request " + status,
+                "The top-up request of ₹" + saved.getAmount() + " for " + saved.getOutlet().getOutletName() + " was " + status.toLowerCase()
+            );
+        } catch (Exception e) {
+            // ignore and continue
+        }
+
         return pettyCashRequestMapper.toDto(saved);
     }
 }

@@ -7,5 +7,6 @@ public interface RequirementService {
     DailyRequirementDto createRequirement(DailyRequirementDto dto);
     List<DailyRequirementDto> getAllRequirements();
     DailyRequirementDto updateRequirement(Long id, DailyRequirementDto dto);
+    DailyRequirementDto updateRequirementStatus(Long id, String status);
     void deleteRequirement(Long id);
 }

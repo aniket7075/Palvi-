@@ -118,6 +118,14 @@ export default function VendorOrders() {
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('KG');
 
+  const getEstimatedTotal = () => {
+    return reqs.reduce((sum, r) => {
+      const matched = inventoryItems.find(i => i.name.toLowerCase() === r.itemName.toLowerCase());
+      const price = matched ? (matched.purchasePrice || 0) : 120; // fallback to 120
+      return sum + (r.quantity * price);
+    }, 0);
+  };
+
   const loadRequirements = async () => {
     const storedRole = await AsyncStorage.getItem('role');
     setUserRole(storedRole);
@@ -246,11 +254,17 @@ export default function VendorOrders() {
       return;
     }
 
+    const approvedReqs = reqs.filter(r => r.status === 'APPROVED');
+    if (approvedReqs.length === 0) {
+      Alert.alert('No Approved Items', 'Only items approved by the Admin can be sent to vendors. Please wait for Admin approval.');
+      return;
+    }
+
     let messageText = '';
     
     if (msgLanguage === 'MR') {
       messageText = `नमस्कार ${vendor.name},\n\nकृपया खालील साहित्य उद्या पाठवून द्या:\n\n`;
-      reqs.forEach((item, index) => {
+      approvedReqs.forEach((item, index) => {
         messageText += `${index + 1}. ${item.itemName} - ${item.quantity} ${item.unit}\n`;
       });
       
@@ -270,7 +284,7 @@ export default function VendorOrders() {
 
     } else {
       messageText = `Hello ${vendor.name},\n\nPlease dispatch the following inventory items tomorrow:\n\n`;
-      reqs.forEach((item, index) => {
+      approvedReqs.forEach((item, index) => {
         messageText += `${index + 1}. ${item.itemName} - ${item.quantity} ${item.unit}\n`;
       });
 
@@ -385,7 +399,10 @@ export default function VendorOrders() {
 
         {/* Draft List */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 8 }}>
-          <Text style={[styles.sectionHeader, { marginTop: 0 }]}>Draft Requirements List</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.sectionHeader, { marginTop: 0 }]}>Draft Requirements List</Text>
+            <Text style={styles.estimatedCostText}>Est. Cost: ₹{getEstimatedTotal().toLocaleString('en-IN')}</Text>
+          </View>
           <TouchableOpacity 
             style={styles.suggestBtn} 
             onPress={handleAutoSuggestRefills}
@@ -405,8 +422,65 @@ export default function VendorOrders() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.draftItemName}>{r.itemName}</Text>
                 <Text style={styles.draftItemQty}>{r.quantity} {r.unit}</Text>
+                <View style={[
+                  styles.statusBadge,
+                  r.status === 'APPROVED' ? styles.badgeApproved : (r.status === 'REJECTED' ? styles.badgeRejected : styles.badgePending)
+                ]}>
+                  <Text style={[
+                    styles.statusBadgeText,
+                    r.status === 'APPROVED' ? styles.textApproved : (r.status === 'REJECTED' ? styles.textRejected : styles.textPending)
+                  ]}>
+                    {r.status || 'PENDING_APPROVAL'}
+                  </Text>
+                </View>
               </View>
               {userRole === 'ADMIN' && (
+                <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                  {r.status === 'PENDING_APPROVAL' && (
+                    <>
+                      <TouchableOpacity 
+                        style={[styles.actionIconBtn, styles.approveIconBtn]} 
+                        onPress={async () => {
+                          try {
+                            setLoading(true);
+                            await stateService.updateRequirementStatus(r.id, 'APPROVED');
+                            await loadRequirements();
+                          } catch (e) {
+                            Alert.alert('Error', 'Failed to approve.');
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                      >
+                        <Icon name="check-square" color="#10b981" size={16} />
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={[styles.actionIconBtn, styles.rejectIconBtn]} 
+                        onPress={async () => {
+                          try {
+                            setLoading(true);
+                            await stateService.updateRequirementStatus(r.id, 'REJECTED');
+                            await loadRequirements();
+                          } catch (e) {
+                            Alert.alert('Error', 'Failed to reject.');
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                      >
+                        <Icon name="close" color="#f44336" size={16} />
+                      </TouchableOpacity>
+                    </>
+                  )}
+                  <TouchableOpacity onPress={() => handleEdit(r)}>
+                    <Icon name="edit" color="#146e4e" size={16} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDelete(r.id)}>
+                    <Icon name="trash" color="#d32f2f" size={16} />
+                  </TouchableOpacity>
+                </View>
+              )}
+              {userRole !== 'ADMIN' && (
                 <View style={{ flexDirection: 'row', gap: 16 }}>
                   <TouchableOpacity onPress={() => handleEdit(r)}>
                     <Icon name="edit" color="#146e4e" size={16} />
@@ -900,5 +974,50 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     color: '#146e4e',
+  },
+  estimatedCostText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#8c6e65',
+    marginTop: 2,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  statusBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  badgePending: {
+    backgroundColor: '#fff8e1',
+  },
+  badgeApproved: {
+    backgroundColor: '#e6f7ed',
+  },
+  badgeRejected: {
+    backgroundColor: '#fdebeb',
+  },
+  textPending: {
+    color: '#f57f17',
+  },
+  textApproved: {
+    color: '#10b981',
+  },
+  textRejected: {
+    color: '#f44336',
+  },
+  actionIconBtn: {
+    padding: 6,
+    borderRadius: 4,
+  },
+  approveIconBtn: {
+    backgroundColor: '#e6f7ed',
+  },
+  rejectIconBtn: {
+    backgroundColor: '#fdebeb',
   },
 });

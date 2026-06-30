@@ -10,6 +10,7 @@ import com.palvi.Palvi.Hotel.repository.BankDepositRepository;
 import com.palvi.Palvi.Hotel.repository.OutletRepository;
 import com.palvi.Palvi.Hotel.repository.UserRepository;
 import com.palvi.Palvi.Hotel.service.BankDepositService;
+import com.palvi.Palvi.Hotel.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,9 @@ public class BankDepositServiceImpl implements BankDepositService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public BankDepositDto createBankDeposit(BankDepositDto dto) {
         BankDeposit deposit = bankDepositMapper.toEntity(dto);
@@ -49,6 +53,17 @@ public class BankDepositServiceImpl implements BankDepositService {
 
         deposit.setStatus("PENDING");
         BankDeposit saved = bankDepositRepository.save(deposit);
+
+        try {
+            notificationService.createNotification(
+                "NEW_BANK_DEPOSIT",
+                "New Bank Deposit Slip",
+                "A cash deposit of ₹" + saved.getAmount() + " was logged for outlet: " + outlet.getOutletName()
+            );
+        } catch (Exception e) {
+            // ignore and continue
+        }
+
         return bankDepositMapper.toDto(saved);
     }
 
@@ -74,6 +89,17 @@ public class BankDepositServiceImpl implements BankDepositService {
                 .orElseThrow(() -> new ResourceNotFoundException("Bank deposit record not found with id: " + id));
         deposit.setStatus(status);
         BankDeposit saved = bankDepositRepository.save(deposit);
+
+        try {
+            notificationService.createNotification(
+                "BANK_DEPOSIT_AUDIT",
+                "Bank Deposit " + status,
+                "The cash deposit of ₹" + saved.getAmount() + " for " + saved.getOutlet().getOutletName() + " was " + status.toLowerCase()
+            );
+        } catch (Exception e) {
+            // ignore and continue
+        }
+
         return bankDepositMapper.toDto(saved);
     }
 

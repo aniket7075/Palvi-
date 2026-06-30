@@ -23,4 +23,5 @@ public class DailyRequirementDto {
     private Double requiredQuantity;
 
     private LocalDate requiredDate;
+    private String status;
 }

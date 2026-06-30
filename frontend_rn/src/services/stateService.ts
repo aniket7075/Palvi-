@@ -1169,7 +1169,8 @@ export const stateService = {
       quantity: requirement.quantity,
       unit: requirement.unit,
       date: new Date().toISOString().split('T')[0],
-      outletId: parseInt(outletId)
+      outletId: parseInt(outletId),
+      status: 'PENDING_APPROVAL'
     };
 
     reqs.push(newReq);
@@ -1206,6 +1207,20 @@ export const stateService = {
       }).catch(err => console.error('Failed to update requirement on backend:', err));
     }
     return true;
+  },
+
+  updateRequirementStatus: async (id: number, status: 'APPROVED' | 'REJECTED') => {
+    const reqs = getStorageItem('palvi_requirements', INITIAL_REQUIREMENTS);
+    const updated = reqs.map((r: any) => r.id === id ? { ...r, status } : r);
+    setStorageItem('palvi_requirements', updated);
+
+    try {
+      await api.put(`/requirements/${id}/status?status=${status}`);
+      return true;
+    } catch (err) {
+      console.error('Failed to update requirement status on backend:', err);
+      throw err;
+    }
   },
 
   deleteRequirement: (id: number) => {

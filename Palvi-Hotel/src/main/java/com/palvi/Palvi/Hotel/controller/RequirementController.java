@@ -44,6 +44,14 @@ public class RequirementController {
         return ResponseEntity.ok(requirementService.updateRequirement(id, dto));
     }
 
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update Requirement Status", description = "Approve or reject a manager's order request.")
+    public ResponseEntity<DailyRequirementDto> updateRequirementStatus(
+            @PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(requirementService.updateRequirementStatus(id, status));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Delete Requirement Item", description = "Removes an item from the requirements list.")

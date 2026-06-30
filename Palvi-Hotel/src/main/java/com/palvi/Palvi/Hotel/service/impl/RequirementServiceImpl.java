@@ -7,6 +7,7 @@ import com.palvi.Palvi.Hotel.exception.ResourceNotFoundException;
 import com.palvi.Palvi.Hotel.mapper.DailyRequirementMapper;
 import com.palvi.Palvi.Hotel.repository.DailyRequirementRepository;
 import com.palvi.Palvi.Hotel.repository.InventoryRepository;
+import com.palvi.Palvi.Hotel.service.NotificationService;
 import com.palvi.Palvi.Hotel.service.RequirementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class RequirementServiceImpl implements RequirementService {
     @Autowired
     private DailyRequirementMapper requirementMapper;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public DailyRequirementDto createRequirement(DailyRequirementDto dto) {
         Inventory item = inventoryRepository.findById(dto.getInventoryItemId())
@@ -39,8 +43,20 @@ public class RequirementServiceImpl implements RequirementService {
         if (req.getRequiredDate() == null) {
             req.setRequiredDate(LocalDate.now());
         }
+        req.setStatus("PENDING_APPROVAL");
 
         DailyRequirement saved = requirementRepository.save(req);
+
+        try {
+            notificationService.createNotification(
+                "NEW_REQUIREMENT",
+                "New Stock Order Request",
+                "A draft request for " + saved.getRequiredQuantity() + " " + item.getUnit() + " of " + item.getItemName() + " has been submitted."
+            );
+        } catch (Exception e) {
+            // ignore and continue
+        }
+
         return requirementMapper.toDto(saved);
     }
 
@@ -67,6 +83,26 @@ public class RequirementServiceImpl implements RequirementService {
         }
 
         DailyRequirement saved = requirementRepository.save(req);
+        return requirementMapper.toDto(saved);
+    }
+
+    @Override
+    public DailyRequirementDto updateRequirementStatus(Long id, String status) {
+        DailyRequirement req = requirementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Requirement not found with id: " + id));
+        req.setStatus(status);
+        DailyRequirement saved = requirementRepository.save(req);
+
+        try {
+            notificationService.createNotification(
+                "REQUIREMENT_AUDIT",
+                "Requirement " + status,
+                "The order request for " + saved.getRequiredQuantity() + " " + saved.getInventoryItem().getUnit() + " of " + saved.getInventoryItem().getItemName() + " was " + status.toLowerCase()
+            );
+        } catch (Exception e) {
+            // ignore and continue
+        }
+
         return requirementMapper.toDto(saved);
     }
 

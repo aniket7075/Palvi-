@@ -16,6 +16,7 @@ public class DailyRequirementMapper {
                 .inventoryUnit(entity.getInventoryItem() != null ? entity.getInventoryItem().getUnit() : null)
                 .requiredQuantity(entity.getRequiredQuantity())
                 .requiredDate(entity.getRequiredDate())
+                .status(entity.getStatus())
                 .build();
     }
 
@@ -25,6 +26,7 @@ public class DailyRequirementMapper {
                 .id(dto.getId())
                 .requiredQuantity(dto.getRequiredQuantity())
                 .requiredDate(dto.getRequiredDate())
+                .status(dto.getStatus())
                 .build();
     }
 }

@@ -29,10 +29,17 @@ public class DailyRequirement {
     @Column(nullable = false)
     private LocalDate requiredDate;
 
+    @Column(length = 20)
+    @Builder.Default
+    private String status = "PENDING_APPROVAL";
+
     @PrePersist
     protected void onCreate() {
         if (requiredDate == null) {
             requiredDate = LocalDate.now();
+        }
+        if (status == null) {
+            status = "PENDING_APPROVAL";
         }
     }
 }
