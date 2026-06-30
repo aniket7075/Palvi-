@@ -18,8 +18,40 @@ import { stateService } from '../services/stateService';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useTheme } from '../theme/ThemeContext';
 import Icon from './Icon';
+import NotificationManager from '../services/NotificationManager';
 
 const { width, height } = Dimensions.get('window');
+
+function SyncStatusIndicator({ theme }: { theme: any }) {
+  const [syncStatus, setSyncStatus] = useState(stateService.getSyncStatus());
+  const [lastSync, setLastSync] = useState(stateService.getLastSyncTime());
+
+  useEffect(() => {
+    const unsubscribe = stateService.subscribeToSyncStatus(() => {
+      setSyncStatus(stateService.getSyncStatus());
+      setLastSync(stateService.getLastSyncTime());
+    });
+    return unsubscribe;
+  }, []);
+
+  let dotColor = '#10b981'; // Synced - Green
+  let text = `Synced: ${lastSync}`;
+
+  if (syncStatus === 'SYNCING') {
+    dotColor = '#3b82f6'; // Syncing - Blue
+    text = 'Syncing...';
+  } else if (syncStatus === 'OFFLINE') {
+    dotColor = '#9e9e9e'; // Offline - Grey
+    text = 'Working Offline';
+  }
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
+      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dotColor, marginRight: 4 }} />
+      <Text style={{ fontSize: 10, color: theme.textSecondary, fontWeight: '600' }}>{text}</Text>
+    </View>
+  );
+}
 
 interface LayoutWrapperProps {
   children: React.ReactNode;
@@ -97,6 +129,16 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
   };
 
   const handleLogout = async () => {
+    try {
+      const storedRole = await AsyncStorage.getItem('role');
+      const storedOutletId = await AsyncStorage.getItem('outletId');
+      if (storedRole) {
+        await NotificationManager.unsubscribeFromRoleTopic(storedRole, storedOutletId || undefined);
+      }
+    } catch (e) {
+      console.error('FCM unsubscription error:', e);
+    }
+
     await AsyncStorage.clear();
     toggleDrawer();
     navigation.reset({
@@ -149,9 +191,11 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
     { text: t('menuManagers'), screen: 'Managers', icon: 'manager', allowedRoles: ['ADMIN'] },
     { text: t('menuStaff'), screen: 'Staff', icon: 'staff', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
     { text: t('menuVendors'), screen: 'Vendors', icon: 'supplier', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: 'Vendor Bills', screen: 'VendorBills', icon: 'invoice', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
     { text: t('menuPurchases'), screen: 'Purchases', icon: 'purchase', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
     { text: t('menuExpenses'), screen: 'Expenses', icon: 'expense', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
     { text: t('menuSales'), screen: 'Sales', icon: 'sales', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
+    { text: t('menuPettyCash'), screen: 'PettyCash', icon: 'invoice', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
     { text: t('menuOrders'), screen: 'VendorOrders', icon: 'clipboard', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
     { text: 'Inventory Stock', screen: 'Inventory', icon: 'inventory', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER'] },
     { text: t('menuReports'), screen: 'Reports', icon: 'reports', allowedRoles: ['ADMIN', 'MANAGER', 'FRANCHISEE'] },
@@ -169,9 +213,12 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
           <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
             <Icon name="menu" color={theme.primary} size={24} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: theme.text }]} numberOfLines={1}>
-            {title}
-          </Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.headerTitle, { color: theme.text }]} numberOfLines={1}>
+              {title}
+            </Text>
+            <SyncStatusIndicator theme={theme} />
+          </View>
         </View>
         
         <View style={styles.headerRight}>

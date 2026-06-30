@@ -32,13 +32,21 @@ export default function Profile() {
   useEffect(() => {
     const loadProfile = async () => {
       const storedEmail = await AsyncStorage.getItem('email');
+      const storedFullName = await AsyncStorage.getItem('fullName');
+      const storedRole = await AsyncStorage.getItem('role');
       if (storedEmail) {
         setEmail(storedEmail);
-        const currentUser = stateService.getCurrentUser(storedEmail);
-        setUser(currentUser);
-        if (currentUser) {
-          setMobileNumber(currentUser.mobileNumber || '');
+        let currentUser = stateService.getCurrentUser(storedEmail);
+        if (!currentUser) {
+          currentUser = {
+            email: storedEmail,
+            fullName: storedFullName || (storedRole === 'ADMIN' ? 'Admin User' : 'Outlet Manager'),
+            role: storedRole || 'MANAGER',
+            mobileNumber: ''
+          };
         }
+        setUser(currentUser);
+        setMobileNumber(currentUser.mobileNumber || '');
       }
       setLoading(false);
     };

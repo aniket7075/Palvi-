@@ -23,6 +23,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { stateService } from '../services/stateService';
 import api from '../api';
+import NotificationManager from '../services/NotificationManager';
 
 type LoginNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -93,6 +94,13 @@ export default function Login({ navigation }: Props) {
       if (session.role === 'ADMIN') targetScreen = 'AdminDashboard';
       if (session.role === 'INVENTORY_MANAGER') targetScreen = 'GodownDispatchScreen';
       if (session.role === 'FRANCHISEE') targetScreen = 'ManagerDashboard';
+
+      try {
+        await NotificationManager.subscribeToRoleTopic(session.role, session.outletId?.toString());
+      } catch (e) {
+        console.error('FCM subscription error:', e);
+      }
+
       navigation.reset({
         index: 0,
         routes: [{ name: targetScreen as any, params: { user: session } }],
@@ -120,6 +128,13 @@ export default function Login({ navigation }: Props) {
           if (session.role === 'ADMIN') targetScreen = 'AdminDashboard';
           if (session.role === 'INVENTORY_MANAGER') targetScreen = 'GodownDispatchScreen';
           if (session.role === 'FRANCHISEE') targetScreen = 'ManagerDashboard';
+
+          try {
+            await NotificationManager.subscribeToRoleTopic(session.role, session.outletId?.toString());
+          } catch (e) {
+            console.error('FCM subscription error:', e);
+          }
+
           navigation.reset({
             index: 0,
             routes: [{ name: targetScreen as any, params: { user: session } }],

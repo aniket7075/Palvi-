@@ -28,12 +28,14 @@ export default function Checklist() {
   const [activeTab, setActiveTab] = useState<'OPENING' | 'CLOSING'>('OPENING');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTaskName, setNewTaskName] = useState('');
+  const [role, setRole] = useState<string | null>(null);
 
   const fetchChecklist = async (activeOutletId?: string) => {
     const id = activeOutletId || await AsyncStorage.getItem('outletId');
+    const userRole = await AsyncStorage.getItem('role');
+    setRole(userRole);
     if (!id) {
-      const role = await AsyncStorage.getItem('role');
-      if (role === 'ADMIN') {
+      if (userRole === 'ADMIN') {
         const outlets = stateService.getOutlets();
         if (outlets.length > 0) {
           const firstId = outlets[0].id.toString();
@@ -200,9 +202,11 @@ export default function Checklist() {
                 ]}
               >
                 <View style={styles.taskLeft}>
-                  <TouchableOpacity onPress={() => handleDeleteTask(item.id)} style={styles.deleteBtn}>
-                    <Icon name="trash" color="#d32f2f" size={16} />
-                  </TouchableOpacity>
+                  {role === 'ADMIN' && (
+                    <TouchableOpacity onPress={() => handleDeleteTask(item.id)} style={styles.deleteBtn}>
+                      <Icon name="trash" color="#d32f2f" size={16} />
+                    </TouchableOpacity>
+                  )}
                   <View style={[styles.iconCircle, isCompleted && styles.activeIconCircle]}>
                       <Icon name={getTaskIconName(item.taskName)} color={isCompleted ? '#146e4e' : '#146e4e'} size={18} />
                   </View>
@@ -235,12 +239,14 @@ export default function Checklist() {
       </ScrollView>
 
       {/* Floating Add button */}
-      <TouchableOpacity
-        onPress={() => setIsModalOpen(true)}
-        style={styles.floatingButton}
-      >
-        <Text style={styles.floatingButtonText}>+ Add Task</Text>
-      </TouchableOpacity>
+      {role === 'ADMIN' && (
+        <TouchableOpacity
+          onPress={() => setIsModalOpen(true)}
+          style={styles.floatingButton}
+        >
+          <Text style={styles.floatingButtonText}>+ Add Task</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Add Task Modal */}
       <Modal

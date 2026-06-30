@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppNavigator from './src/navigation/AppNavigator';
 import { initializeState } from './src/services/stateService';
 import { LanguageProvider } from './src/i18n/LanguageContext';
@@ -14,6 +15,15 @@ function App() {
   useEffect(() => {
     const startApp = async () => {
       await initializeState();
+      try {
+        const role = await AsyncStorage.getItem('role');
+        const outletId = await AsyncStorage.getItem('outletId');
+        if (role) {
+          await NotificationManager.subscribeToRoleTopic(role, outletId || undefined);
+        }
+      } catch (e) {
+        console.error('FCM init subscription error:', e);
+      }
       setLoading(false);
     };
     startApp();

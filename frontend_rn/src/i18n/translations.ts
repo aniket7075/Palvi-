@@ -13,6 +13,7 @@ export const translations: Record<string, Record<string, string>> = {
     menuReports: 'Reports & Analytics',
     menuNotifications: 'System Alerts',
     menuProfile: 'My Profile',
+    menuPettyCash: 'Petty Cash Drawer',
     logout: 'Logout',
     version: 'App Version',
     
@@ -102,6 +103,7 @@ export const translations: Record<string, Record<string, string>> = {
     menuReports: 'रिपोर्ट्स',
     menuNotifications: 'अलर्ट्स',
     menuProfile: 'प्रोफाईल',
+    menuPettyCash: 'गल्ला (Petty Cash Log)',
     logout: 'लॉगआउट',
     version: 'अॅप व्हर्जन',
     

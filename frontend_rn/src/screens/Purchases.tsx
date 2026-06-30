@@ -19,6 +19,9 @@ import { stateService } from '../services/stateService';
 import LayoutWrapper from '../components/LayoutWrapper';
 import OutletSelector from '../components/OutletSelector';
 import { useLanguage } from '../i18n/LanguageContext';
+import { API_BASE_URL } from '../api';
+
+const BASE_URL = API_BASE_URL.replace('/api', '');
 
 export default function Purchases() {
   const { t } = useLanguage();
@@ -208,14 +211,14 @@ export default function Purchases() {
                     {p.billImagePath ? (
                        <TouchableOpacity 
                          style={styles.actionBtn}
-                         onPress={() => Linking.openURL(`http://localhost:8080/uploads/${p.billImagePath}`)}
+                         onPress={() => Linking.openURL(`${BASE_URL}/uploads/${p.billImagePath}`)}
                        >
                          <Text style={styles.actionBtnText}>{t('viewBill')}</Text>
                        </TouchableOpacity>
                     ) : (
                        <TouchableOpacity 
                          style={styles.actionBtnOutline}
-                         onPress={() => Linking.openURL(`http://localhost:8080/purchase-upload?purchaseId=${p.id}`)}
+                         onPress={() => Linking.openURL(`${BASE_URL}/purchase-upload?purchaseId=${p.id}`)}
                        >
                          <Text style={styles.actionBtnOutlineText}>+ {t('uploadBill')}</Text>
                        </TouchableOpacity>

@@ -220,6 +220,43 @@ export default function AdminDashboard() {
             </View>
           </TouchableOpacity>
 
+          {/* Admin Operations Grid */}
+          <Text style={styles.sectionSubtitle}>Operational Audits & Control</Text>
+          <View style={styles.adminActionsGrid}>
+            <TouchableOpacity 
+              style={styles.adminActionCard}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('BankDepositScreen')}
+            >
+              <Icon name="sales" color="#146e4e" size={24} />
+              <Text style={styles.adminActionText}>Bank Deposits</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.adminActionCard}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('WasteTrackingScreen')}
+            >
+              <Icon name="alert" color="#c62828" size={24} />
+              <Text style={styles.adminActionText}>Wastage Losses</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.adminActionCard}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('PayrollScreen')}
+            >
+              <Icon name="wallet" color="#146e4e" size={24} />
+              <Text style={styles.adminActionText}>Payroll & Wages</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.adminActionCard}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('ChecklistTemplatesScreen')}
+            >
+              <Icon name="clipboard" color="#146e4e" size={24} />
+              <Text style={styles.adminActionText}>Audit Templates</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Grand Revenue Splits Card */}
           <View style={styles.ledgerCard}>
             <View style={styles.ledgerHeader}>
@@ -551,18 +588,18 @@ const styles = StyleSheet.create({
   headerCard: {
     backgroundColor: '#146e4e',
     paddingTop: 30,
-    paddingBottom: 40,
+    paddingBottom: 35,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     marginBottom: 0,
     marginHorizontal: -16,
     marginTop: -16,
-    shadowColor: '#146e4e',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
     zIndex: 10,
   },
   headerTopRow: {
@@ -596,6 +633,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#e8f5e9',
+    opacity: 0.9,
   },
   headerTitle: {
     fontSize: 26,
@@ -606,7 +644,8 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 13,
     color: '#e8f5e9',
-    fontWeight: '500',
+    fontWeight: '600',
+    opacity: 0.9,
     lineHeight: 18,
   },
   tabContainer: {
@@ -1225,5 +1264,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
     maxWidth: 260,
+  },
+  adminActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    gap: 12,
+  },
+  adminActionCard: {
+    width: '47%',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: '#f0e6df',
+  },
+  adminActionText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#3d251e',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });

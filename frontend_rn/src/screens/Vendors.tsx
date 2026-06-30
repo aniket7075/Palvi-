@@ -18,7 +18,7 @@ import LayoutWrapper from '../components/LayoutWrapper';
 import api from '../api';
 import { useLanguage } from '../i18n/LanguageContext';
 
-export default function Vendors({ route }: any) {
+export default function Vendors({ route, navigation }: any) {
   const user = route?.params?.user || {};
   const currentOutletId = user.outletId;
 
@@ -176,11 +176,16 @@ export default function Vendors({ route }: any) {
     <LayoutWrapper title={t('supplierDirectory')}>
       <View style={styles.mainContainer}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
             <Text style={styles.sectionHeader}>Supplier Directory</Text>
-            <TouchableOpacity onPress={() => setIsGroupModalOpen(true)} style={styles.manageGroupsBtn}>
-              <Text style={styles.manageGroupsText}>Manage Groups</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity onPress={() => navigation.navigate('VendorBills')} style={styles.manageGroupsBtn}>
+                <Text style={styles.manageGroupsText}>View Bills</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsGroupModalOpen(true)} style={styles.manageGroupsBtn}>
+                <Text style={styles.manageGroupsText}>Manage Groups</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           {/* Vendors list */}
           <View style={styles.listContainer}>

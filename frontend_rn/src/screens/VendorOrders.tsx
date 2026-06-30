@@ -18,6 +18,86 @@ import { stateService } from '../services/stateService';
 import LayoutWrapper from '../components/LayoutWrapper';
 import Icon from '../components/Icon';
 import OutletSelector from '../components/OutletSelector';
+import { API_BASE_URL } from '../api';
+
+const BASE_URL = API_BASE_URL.replace('/api', '');
+
+const CATEGORIES = [
+  'Vegetables (भाज्या)',
+  'Dairy & Dairy Products (दुग्धजन्य पदार्थ)',
+  'Groceries & Oils (किराणा आणि तेल)',
+  'Spices & Masalas (मसाले)',
+  'Packaging Materials (पॅकेजिंग साहित्य)',
+  'Cleaning & Hygiene (स्वच्छता साहित्य)'
+];
+
+const COMMON_VEG_ITEMS = [
+  // Vegetables
+  { name: 'Tomato (टोमॅटो)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Onion (कांदा)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Potato (बटाटा)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Garlic (लसूण)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Ginger (आले)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Coriander (कोथिंबीर)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Green Chilli (हिरवी मिरची)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Lemon (लिंबू)', unit: 'Piece', category: 'Vegetables (भाज्या)' },
+  { name: 'Capsicum (ढोबळी मिरची)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Cabbage (कोबी)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Cauliflower (फ्लॉवर)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  { name: 'Green Peas (मटार)', unit: 'KG', category: 'Vegetables (भाज्या)' },
+  
+  // Dairy & Dairy Products
+  { name: 'Paneer (पनीर)', unit: 'KG', category: 'Dairy & Dairy Products (दुग्धजन्य पदार्थ)' },
+  { name: 'Milk (दूध)', unit: 'Ltr', category: 'Dairy & Dairy Products (दुग्धजन्य पदार्थ)' },
+  { name: 'Butter (लोणी)', unit: 'KG', category: 'Dairy & Dairy Products (दुग्धजन्य पदार्थ)' },
+  { name: 'Cheese (चीझ)', unit: 'KG', category: 'Dairy & Dairy Products (दुग्धजन्य पदार्थ)' },
+  { name: 'Fresh Cream (क्रीम)', unit: 'KG', category: 'Dairy & Dairy Products (दुग्धजन्य पदार्थ)' },
+  { name: 'Curd (दही)', unit: 'KG', category: 'Dairy & Dairy Products (दुग्धजन्य पदार्थ)' },
+
+  // Groceries & Oils
+  { name: 'Cooking Oil (तेल)', unit: 'Ltr', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Wheat Flour (Atta) (पीठ)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Rice (तांदूळ)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Sugar (साखर)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Salt (मीठ)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Maida (मैदा)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Corn Flour (कॉर्न फ्लोअर)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Tea Powder (चहा पावडर)', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Coffee Powder (कॉफी पावडर)', unit: 'Packet', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Tomato Ketchup / Sauce', unit: 'KG', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Soy Sauce / Vinegar', unit: 'Bottle', category: 'Groceries & Oils (किराणा आणि तेल)' },
+  { name: 'Papad (पापड)', unit: 'Packet', category: 'Groceries & Oils (किराणा आणि तेल)' },
+
+  // Spices & Masalas
+  { name: 'Red Chilli Powder (लाल तिखट)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Turmeric Powder (हळद)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Coriander Powder (धने पूड)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Cumin Seeds (जिरे)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Mustard Seeds (मोहरी)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Garam Masala (गरम मसाला)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Kitchen King Masala', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Paneer Masala (पनीर मसाला)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Kasuri Methi (कसुरी मेथी)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Asafoetida (हिंग)', unit: 'Packet', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Cardamom (वेलची)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Cloves (लवंग)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Black Pepper (मिरी)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+  { name: 'Cinnamon (दालचिनी)', unit: 'KG', category: 'Spices & Masalas (मसाले)' },
+
+  // Packaging Materials
+  { name: 'Parcel Containers (पार्सल डबे)', unit: 'Piece', category: 'Packaging Materials (पॅकेजिंग साहित्य)' },
+  { name: 'Parcel Bags (पार्सल पिशव्या)', unit: 'KG', category: 'Packaging Materials (पॅकेजिंग साहित्य)' },
+  { name: 'Aluminium Foil Paper (फॉइल पेपर)', unit: 'Roll', category: 'Packaging Materials (पॅकेजिंग साहित्य)' },
+  { name: 'Plastic Spoons / Forks (चमचे)', unit: 'Packet', category: 'Packaging Materials (पॅकेजिंग साहित्य)' },
+  { name: 'Tissue Papers / Napkins', unit: 'Packet', category: 'Packaging Materials (पॅकेजिंग साहित्य)' },
+
+  // Cleaning & Hygiene
+  { name: 'Dishwash Liquid (भांडी लिक्विड)', unit: 'Ltr', category: 'Cleaning & Hygiene (स्वच्छता साहित्य)' },
+  { name: 'Floor Cleaner (लादी फिनाईल)', unit: 'Ltr', category: 'Cleaning & Hygiene (स्वच्छता साहित्य)' },
+  { name: 'Handwash Liquid (हात लिक्विड)', unit: 'Ltr', category: 'Cleaning & Hygiene (स्वच्छता साहित्य)' },
+  { name: 'Garbage Bags (कचऱ्याची पिशवी)', unit: 'Packet', category: 'Cleaning & Hygiene (स्वच्छता साहित्य)' },
+  { name: 'Scrubbers (घासणी)', unit: 'Piece', category: 'Cleaning & Hygiene (स्वच्छता साहित्य)' },
+];
 
 export default function VendorOrders() {
   const [reqs, setReqs] = useState<any[]>([]);
@@ -106,6 +186,37 @@ export default function VendorOrders() {
     setUnit('KG');
   };
 
+  const handleAutoSuggestRefills = () => {
+    const inventory = stateService.getInventory(outletId);
+    const lowStockItems = inventory.filter((item: any) => item.quantity <= item.minStock);
+
+    if (lowStockItems.length === 0) {
+      Alert.alert('Stock Level Good', 'All inventory items are currently above safety stock thresholds.');
+      return;
+    }
+
+    let addedCount = 0;
+    lowStockItems.forEach((item: any) => {
+      const alreadyDrafted = reqs.some(r => r.itemName.toLowerCase() === item.name.toLowerCase());
+      if (!alreadyDrafted) {
+        const suggestQty = Math.max(1, (item.minStock * 2) - item.quantity);
+        stateService.addRequirement(outletId, {
+          itemName: item.name,
+          quantity: suggestQty,
+          unit: item.unit
+        });
+        addedCount++;
+      }
+    });
+
+    if (addedCount > 0) {
+      loadRequirements();
+      Alert.alert('Refills Suggested', `Successfully added ${addedCount} low-stock items to your Tomorrow Requirements list.`);
+    } else {
+      Alert.alert('Already Drafted', 'All low-stock items have already been added to the draft list.');
+    }
+  };
+
   const handleEdit = (r: any) => {
     setEditingReqId(r.id);
     setItemName(r.itemName);
@@ -154,7 +265,7 @@ export default function VendorOrders() {
       }
 
       messageText += `\n*तुमचे बिल येथे अपलोड करा:*\n`;
-      messageText += `http://localhost:8080/vendor-upload?vendorId=${vendor.id}\n`;
+      messageText += `${BASE_URL}/vendor-upload?vendorId=${vendor.id}\n`;
       messageText += `\nधन्यवाद.\nपालवी हॉटेल`;
 
     } else {
@@ -174,7 +285,7 @@ export default function VendorOrders() {
       }
 
       messageText += `\n*Upload your bill/invoice here:*\n`;
-      messageText += `http://localhost:8080/vendor-upload?vendorId=${vendor.id}\n`;
+      messageText += `${BASE_URL}/vendor-upload?vendorId=${vendor.id}\n`;
       messageText += `\nThank You.\nPalvi Outlets`;
     }
 
@@ -273,7 +384,15 @@ export default function VendorOrders() {
         </View>
 
         {/* Draft List */}
-        <Text style={styles.sectionHeader}>Draft Requirements List</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 8 }}>
+          <Text style={[styles.sectionHeader, { marginTop: 0 }]}>Draft Requirements List</Text>
+          <TouchableOpacity 
+            style={styles.suggestBtn} 
+            onPress={handleAutoSuggestRefills}
+          >
+            <Text style={styles.suggestBtnText}>✨ Auto-Suggest Refills</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.draftCard}>
           {reqs.map((r, index) => (
             <View
@@ -410,26 +529,50 @@ export default function VendorOrders() {
                   <Icon name="close" color="#3d251e" size={20} />
                 </TouchableOpacity>
               </View>
-              <ScrollView style={{ maxHeight: 300 }}>
-                {inventoryItems.map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={styles.modalOption}
-                    onPress={() => {
-                      setItemName(item.name);
-                      setUnit(item.unit);
-                      setIsItemModalOpen(false);
-                    }}
-                  >
-                    <Text style={styles.modalOptionText}>{item.name}</Text>
-                    <Text style={styles.modalOptionSubText}>Current Stock: {item.quantity} {item.unit}</Text>
-                  </TouchableOpacity>
-                ))}
-                {inventoryItems.length === 0 && (
-                  <Text style={{ textAlign: 'center', color: '#8c6e65', marginTop: 20 }}>
-                    No inventory items found. Add items from the Inventory tab.
-                  </Text>
+              <ScrollView style={{ maxHeight: 350 }} showsVerticalScrollIndicator={true}>
+                {inventoryItems.length > 0 && (
+                  <>
+                    <Text style={styles.modalSectionTitle}>Branch Inventory Items</Text>
+                    {inventoryItems.map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={styles.modalOption}
+                        onPress={() => {
+                          setItemName(item.name);
+                          setUnit(item.unit);
+                          setIsItemModalOpen(false);
+                        }}
+                      >
+                        <Text style={styles.modalOptionText}>{item.name}</Text>
+                        <Text style={styles.modalOptionSubText}>Current Stock: {item.quantity} {item.unit}</Text>
+                      </TouchableOpacity>
+                    ))}
+                    <View style={styles.modalSectionDivider} />
+                  </>
                 )}
+
+                {CATEGORIES.map((cat) => {
+                  const catItems = COMMON_VEG_ITEMS.filter((item) => item.category === cat);
+                  return (
+                    <View key={cat} style={{ marginTop: 12 }}>
+                      <Text style={styles.modalCategoryHeader}>{cat}</Text>
+                      {catItems.map((item, idx) => (
+                        <TouchableOpacity
+                          key={`common-${cat}-${idx}`}
+                          style={styles.modalOption}
+                          onPress={() => {
+                            setItemName(item.name);
+                            setUnit(item.unit);
+                            setIsItemModalOpen(false);
+                          }}
+                        >
+                          <Text style={styles.modalOptionText}>{item.name}</Text>
+                          <Text style={styles.modalOptionSubText}>Suggested Unit: {item.unit}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  );
+                })}
               </ScrollView>
             </View>
           </View>
@@ -720,5 +863,42 @@ const styles = StyleSheet.create({
   },
   activeLangText: {
     color: '#ffffff',
+  },
+  modalSectionTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#146e4e',
+    backgroundColor: '#f4fbf7',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  modalSectionDivider: {
+    height: 12,
+  },
+  modalCategoryHeader: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#8c6e65',
+    backgroundColor: '#faf6f3',
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  suggestBtn: {
+    backgroundColor: '#f4fbf7',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  suggestBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#146e4e',
   },
 });

@@ -64,39 +64,44 @@ class NotificationManager {
    * Subscribe to a specific topic based on user role
    * Example: 'admin', 'manager', 'outlet_123'
    */
-  async subscribeToRoleTopic(role: UserRole, outletId?: string) {
+  async subscribeToRoleTopic(role: string, outletId?: string) {
     try {
-      let topic: string = role;
-      if (role === 'outlet' && outletId) {
-        topic = `outlet_${outletId}`;
-      } else if (role === 'outlet') {
-        // Fallback or generic outlet topic
-        topic = 'outlets';
-      }
+      if (!role) return;
+      const normalizedRole = role.toLowerCase();
 
-      await messaging().subscribeToTopic(topic);
-      console.log(`Subscribed to topic: ${topic}`);
+      // Subscribe to role-specific topic (e.g. "admin", "manager")
+      await messaging().subscribeToTopic(normalizedRole);
+      console.log(`Subscribed to role topic: ${normalizedRole}`);
+
+      // Subscribe to outlet-specific topic if outletId is provided
+      if (outletId) {
+        const outletTopic = `outlet_${outletId}`;
+        await messaging().subscribeToTopic(outletTopic);
+        console.log(`Subscribed to outlet topic: ${outletTopic}`);
+      }
     } catch (error) {
-      console.error(`Failed to subscribe to topic`, error);
+      console.error(`Failed to subscribe to topics for role=${role}, outletId=${outletId}`, error);
     }
   }
 
   /**
    * Unsubscribe from a role topic (e.g., on logout)
    */
-  async unsubscribeFromRoleTopic(role: UserRole, outletId?: string) {
+  async unsubscribeFromRoleTopic(role: string, outletId?: string) {
     try {
-      let topic: string = role;
-      if (role === 'outlet' && outletId) {
-        topic = `outlet_${outletId}`;
-      } else if (role === 'outlet') {
-        topic = 'outlets';
-      }
+      if (!role) return;
+      const normalizedRole = role.toLowerCase();
 
-      await messaging().unsubscribeFromTopic(topic);
-      console.log(`Unsubscribed from topic: ${topic}`);
+      await messaging().unsubscribeFromTopic(normalizedRole);
+      console.log(`Unsubscribed from role topic: ${normalizedRole}`);
+
+      if (outletId) {
+        const outletTopic = `outlet_${outletId}`;
+        await messaging().unsubscribeFromTopic(outletTopic);
+        console.log(`Unsubscribed from outlet topic: ${outletTopic}`);
+      }
     } catch (error) {
-      console.error(`Failed to unsubscribe from topic`, error);
+      console.error(`Failed to unsubscribe from topics for role=${role}, outletId=${outletId}`, error);
     }
   }
 }

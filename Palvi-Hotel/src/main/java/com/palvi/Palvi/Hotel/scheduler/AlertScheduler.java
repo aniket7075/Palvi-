@@ -32,6 +32,12 @@ public class AlertScheduler {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private OutletRepository outletRepository;
+
+    @Autowired
+    private ChecklistTemplateRepository checklistTemplateRepository;
+
     // 1. Check Low Stock - Runs daily at 8:00 AM
     @Scheduled(cron = "0 0 8 * * ?")
     public void checkLowStock() {
@@ -68,7 +74,7 @@ public class AlertScheduler {
 
         if (!missing.isEmpty()) {
             String names = missing.stream()
-                    .map(Staff::getFullName)
+                    .map(s -> s.getFullName())
                     .collect(Collectors.joining(", "));
 
             notificationService.createNotification(
@@ -116,6 +122,35 @@ public class AlertScheduler {
                     "Daily Sales Summary",
                     "Total cumulative sales across all active outlets today: INR " + totalSalesSum
             );
+        }
+    }
+
+    // 5. Initialize Daily Checklists from Templates - Runs daily at 12:05 AM
+    @Scheduled(cron = "0 5 0 * * ?")
+    public void initializeDailyChecklists() {
+        LocalDate today = LocalDate.now();
+        List<ChecklistTemplate> activeTemplates = checklistTemplateRepository.findByActiveTrue();
+        List<Outlet> activeOutlets = outletRepository.findAll().stream()
+                .filter(o -> "ACTIVE".equalsIgnoreCase(o.getStatus()))
+                .collect(Collectors.toList());
+
+        for (Outlet outlet : activeOutlets) {
+            for (ChecklistTemplate template : activeTemplates) {
+                // Check if already exists to avoid duplication
+                List<Checklist> existing = checklistRepository.findByOutletIdAndChecklistDate(outlet.getId(), today);
+                boolean exists = existing.stream().anyMatch(c -> c.getChecklistName().equalsIgnoreCase(template.getTaskName()));
+                
+                if (!exists) {
+                    Checklist checklist = Checklist.builder()
+                            .checklistName(template.getTaskName())
+                            .completed(false)
+                            .checklistDate(today)
+                            .timeRange(template.getTimeRange())
+                            .outlet(outlet)
+                            .build();
+                    checklistRepository.save(checklist);
+                }
+            }
         }
     }
 }

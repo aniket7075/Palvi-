@@ -24,7 +24,7 @@ public class ChecklistController {
     private ChecklistService checklistService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create Checklist Task", description = "Adds a checklist task for an outlet.")
     public ResponseEntity<ChecklistDto> createChecklist(@Valid @RequestBody ChecklistDto dto) {
         ChecklistDto created = checklistService.createChecklist(dto);
@@ -53,7 +53,7 @@ public class ChecklistController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete Checklist Task", description = "Removes a checklist item.")
     public ResponseEntity<Void> deleteChecklist(@PathVariable Long id) {
         checklistService.deleteChecklist(id);

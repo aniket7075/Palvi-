@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Share } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// @ts-ignore
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from '../components/Icon';
 import { stateService } from '../services/stateService';
 
 export default function DailyReportScreen() {

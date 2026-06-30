@@ -18,6 +18,22 @@ import {
 let memoryState: Record<string, any> = {};
 let isInitialized = false;
 
+// Sync Status State & Listeners
+let syncStatus: 'SYNCED' | 'OFFLINE' | 'SYNCING' = 'SYNCED';
+let lastSyncTime: string = 'Never';
+let syncListeners: (() => void)[] = [];
+
+export const subscribeToSyncStatus = (listener: () => void) => {
+  syncListeners.push(listener);
+  return () => {
+    syncListeners = syncListeners.filter(l => l !== listener);
+  };
+};
+
+const notifySyncStatusChange = () => {
+  syncListeners.forEach(l => l());
+};
+
 // Async initializer to load state from disk and sync from backend on startup
 export const initializeState = async () => {
   if (isInitialized) return;
@@ -37,6 +53,7 @@ export const initializeState = async () => {
     palvi_attendance: [],
     palvi_vendor_bills: [],
     palvi_godown_dispatches: [],
+    palvi_petty_cash: [],
     palvi_vendor_groups: [
       { id: 1, name: "Morning", vendorIds: [] },
       { id: 2, name: "Evening", vendorIds: [] }
@@ -65,6 +82,8 @@ export const initializeState = async () => {
 };
 
 const syncFromBackendAsync = async () => {
+  syncStatus = 'SYNCING';
+  notifySyncStatusChange();
   // Fetch fresh data from backend
   try {
     const token = await AsyncStorage.getItem('token');
@@ -204,6 +223,7 @@ const syncFromBackendAsync = async () => {
           taskName: c.checklistName,
           status: c.completed ? 'COMPLETED' : 'PENDING',
           date: c.checklistDate,
+          timeRange: c.timeRange || 'OPENING',
           outletId: c.outletId
         }));
         memoryState.palvi_checklists = mapped;
@@ -266,9 +286,14 @@ const syncFromBackendAsync = async () => {
         memoryState.palvi_requirements = mapped;
         await AsyncStorage.setItem('palvi_requirements', JSON.stringify(mapped));
       }
+      syncStatus = 'SYNCED';
+      lastSyncTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      notifySyncStatusChange();
     }
   } catch (err) {
     console.error('Failed to sync state from Spring Boot backend:', err);
+    syncStatus = 'OFFLINE';
+    notifySyncStatusChange();
   }
 };
 
@@ -1303,5 +1328,292 @@ export const stateService = {
 
     api.put(`/godown-dispatch/${dispatchId}/received`)
        .catch(err => console.error('Failed to update dispatch status on backend', err));
+  },
+
+  // --- SYNC STATUS SERVICES ---
+  getSyncStatus: () => syncStatus,
+  getLastSyncTime: () => lastSyncTime,
+  subscribeToSyncStatus,
+
+  // --- PETTY CASH SERVICES ---
+  getPettyCashLog: (outletId: any, date: string) => {
+    const logs = getStorageItem('palvi_petty_cash', []);
+    const filtered = logs.find((l: any) => l.outletId === parseInt(outletId) && l.date === date);
+    if (filtered) return filtered;
+
+    // Try to get yesterday's closing balance to use as today's opening balance
+    const yesterday = new Date(new Date(date).getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const yesterdayLog = logs.find((l: any) => l.outletId === parseInt(outletId) && l.date === yesterday);
+    const openingBalance = yesterdayLog ? yesterdayLog.closingBalance : 2000; // default 2000 starting cash
+
+    const newLog = {
+      id: Date.now(),
+      outletId: parseInt(outletId),
+      date,
+      openingBalance,
+      transactions: [],
+      closingBalance: openingBalance
+    };
+
+    logs.push(newLog);
+    setStorageItem('palvi_petty_cash', logs);
+    
+    // Initial calculation to link existing sales/expenses/advances for this date
+    stateService.recalculatePettyCash(outletId, date);
+    
+    // Refetch since recalculate updates storage
+    const refetched = getStorageItem('palvi_petty_cash', []).find((l: any) => l.outletId === parseInt(outletId) && l.date === date);
+    return refetched || newLog;
+  },
+
+  updatePettyCashOpeningBalance: (outletId: any, date: string, amount: number) => {
+    const logs = getStorageItem('palvi_petty_cash', []);
+    const idx = logs.findIndex((l: any) => l.outletId === parseInt(outletId) && l.date === date);
+    if (idx > -1) {
+      logs[idx].openingBalance = amount;
+      setStorageItem('palvi_petty_cash', logs);
+      stateService.recalculatePettyCash(outletId, date);
+    }
+  },
+
+  addPettyCashTransaction: (outletId: any, date: string, transaction: { type: 'IN' | 'OUT', amount: number, reason: string }) => {
+    const logs = getStorageItem('palvi_petty_cash', []);
+    const idx = logs.findIndex((l: any) => l.outletId === parseInt(outletId) && l.date === date);
+    if (idx > -1) {
+      const newTx = {
+        id: Date.now(),
+        type: transaction.type,
+        amount: transaction.amount,
+        reason: transaction.reason,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      logs[idx].transactions.push(newTx);
+      setStorageItem('palvi_petty_cash', logs);
+      stateService.recalculatePettyCash(outletId, date);
+    }
+  },
+
+  deletePettyCashTransaction: (outletId: any, date: string, txId: number) => {
+    const logs = getStorageItem('palvi_petty_cash', []);
+    const idx = logs.findIndex((l: any) => l.outletId === parseInt(outletId) && l.date === date);
+    if (idx > -1) {
+      logs[idx].transactions = logs[idx].transactions.filter((t: any) => t.id !== txId);
+      setStorageItem('palvi_petty_cash', logs);
+      stateService.recalculatePettyCash(outletId, date);
+    }
+  },
+
+  recalculatePettyCash: (outletId: any, date: string) => {
+    const logs = getStorageItem('palvi_petty_cash', []);
+    const idx = logs.findIndex((l: any) => l.outletId === parseInt(outletId) && l.date === date);
+    if (idx > -1) {
+      const log = logs[idx];
+      
+      // 1. Get cash sales for this date
+      const sales = getStorageItem('palvi_sales', INITIAL_SALES).find((s: any) => s.outletId === parseInt(outletId) && s.date === date);
+      const cashSalesAmount = sales ? (sales.cash || 0) : 0;
+
+      // 2. Sum manual transactions
+      let manualIn = 0;
+      let manualOut = 0;
+      log.transactions.forEach((tx: any) => {
+        if (tx.type === 'IN') manualIn += tx.amount;
+        else manualOut += tx.amount;
+      });
+
+      // 3. Subtract cash expenses
+      const expenses = getStorageItem('palvi_expenses', INITIAL_EXPENSES).filter((e: any) => e.outletId === parseInt(outletId) && e.date === date);
+      const cashExpensesAmount = expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+      // 4. Subtract staff advances
+      const advances = getStorageItem('palvi_staff_advances', []).filter((a: any) => a.advanceDate === date);
+      const cashAdvancesAmount = advances.reduce((sum: number, a: any) => sum + (a.amount || 0), 0);
+
+      log.closingBalance = log.openingBalance + cashSalesAmount + manualIn - manualOut - cashExpensesAmount - cashAdvancesAmount;
+      setStorageItem('palvi_petty_cash', logs);
+    }
+  },
+
+  // --- BANK DEPOSIT SERVICES ---
+  getBankDeposits: async (outletId: any) => {
+    try {
+      const res = outletId 
+        ? await api.get(`/bank-deposits/outlet/${outletId}`) 
+        : await api.get('/bank-deposits');
+      return res.data;
+    } catch (err) {
+      console.error('Failed to get bank deposits', err);
+      return [];
+    }
+  },
+  createBankDeposit: async (deposit: any) => {
+    try {
+      const res = await api.post('/bank-deposits', deposit);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to create bank deposit', err);
+      throw err;
+    }
+  },
+  uploadBankDepositSlip: async (id: number, fileData: any) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', fileData);
+      const res = await api.post(`/bank-deposits/${id}/upload-slip`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Failed to upload slip', err);
+      throw err;
+    }
+  },
+  approveBankDeposit: async (id: number) => {
+    try {
+      const res = await api.put(`/bank-deposits/${id}/status?status=APPROVED`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to approve bank deposit', err);
+      throw err;
+    }
+  },
+  rejectBankDeposit: async (id: number, notes?: string) => {
+    try {
+      const notesParam = notes ? `&notes=${encodeURIComponent(notes)}` : '';
+      const res = await api.put(`/bank-deposits/${id}/status?status=REJECTED${notesParam}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to reject bank deposit', err);
+      throw err;
+    }
+  },
+
+  // --- WASTE / SPOILAGE SERVICES ---
+  getWasteLogs: async (outletId: any) => {
+    try {
+      const res = outletId 
+        ? await api.get(`/waste-logs/outlet/${outletId}`) 
+        : await api.get('/waste-logs');
+      return res.data;
+    } catch (err) {
+      console.error('Failed to get waste logs', err);
+      return [];
+    }
+  },
+  createWasteLog: async (waste: any) => {
+    try {
+      const res = await api.post('/waste-logs', waste);
+      const inventory = getStorageItem('palvi_inventory', INITIAL_INVENTORY);
+      const idx = inventory.findIndex((i: any) => i.id === waste.inventoryItemId);
+      if (idx > -1) {
+        inventory[idx].quantity = Math.max(0, inventory[idx].quantity - waste.quantity);
+        setStorageItem('palvi_inventory', inventory);
+      }
+      return res.data;
+    } catch (err) {
+      console.error('Failed to create waste log', err);
+      throw err;
+    }
+  },
+
+  // --- PETTY CASH TOP-UP REQUESTS ---
+  getPettyCashRequests: async (outletId: any) => {
+    try {
+      const res = outletId 
+        ? await api.get(`/petty-cash/requests/outlet/${outletId}`) 
+        : await api.get('/petty-cash/requests');
+      return res.data;
+    } catch (err) {
+      console.error('Failed to get petty cash requests', err);
+      return [];
+    }
+  },
+  createPettyCashRequest: async (req: any) => {
+    try {
+      const res = await api.post('/petty-cash/requests', req);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to create petty cash request', err);
+      throw err;
+    }
+  },
+  resolvePettyCashRequest: async (id: number, status: string, notes?: string) => {
+    try {
+      const notesParam = notes ? `&notes=${encodeURIComponent(notes)}` : '';
+      const res = await api.put(`/petty-cash/requests/${id}/status?status=${status}${notesParam}`);
+      if (status === 'APPROVED' && res.data) {
+        const reqData = res.data;
+        const today = new Date().toISOString().split('T')[0];
+        stateService.addPettyCashTransaction(reqData.outletId, today, {
+          type: 'IN',
+          amount: reqData.amount,
+          reason: `Petty cash top-up approved: ${reqData.reason || ''}`
+        });
+      }
+      return res.data;
+    } catch (err) {
+      console.error('Failed to resolve petty cash request', err);
+      throw err;
+    }
+  },
+
+  // --- PAYROLL SERVICES ---
+  getPayrollCalculations: async (outletId: any, month: number, year: number) => {
+    try {
+      const outletParam = outletId ? `outletId=${outletId}&` : '';
+      const res = await api.get(`/payroll/calculate?${outletParam}month=${month}&year=${year}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to calculate payroll', err);
+      return [];
+    }
+  },
+  confirmPayrollPayout: async (staffId: number, month: number, year: number, amount: number) => {
+    try {
+      const res = await api.post(`/payroll/payout?staffId=${staffId}&month=${month}&year=${year}&amount=${amount}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to record payroll payout', err);
+      throw err;
+    }
+  },
+
+  // --- CHECKLIST TEMPLATE SERVICES ---
+  getChecklistTemplates: async () => {
+    try {
+      const res = await api.get('/checklist-templates');
+      return res.data;
+    } catch (err) {
+      console.error('Failed to get checklist templates', err);
+      return [];
+    }
+  },
+  createChecklistTemplate: async (template: any) => {
+    try {
+      const res = await api.post('/checklist-templates', template);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to create checklist template', err);
+      throw err;
+    }
+  },
+  updateChecklistTemplate: async (id: number, template: any) => {
+    try {
+      const res = await api.put(`/checklist-templates/${id}`, template);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to update checklist template', err);
+      throw err;
+    }
+  },
+  deleteChecklistTemplate: async (id: number) => {
+    try {
+      await api.delete(`/checklist-templates/${id}`);
+    } catch (err) {
+      console.error('Failed to delete checklist template', err);
+      throw err;
+    }
   }
 };

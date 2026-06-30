@@ -22,8 +22,14 @@ import VendorOrders from '../screens/VendorOrders';
 import Reports from '../screens/Reports';
 import Notifications from '../screens/Notifications';
 import Profile from '../screens/Profile';
+import PettyCash from '../screens/PettyCash';
 import GodownDispatchScreen from '../screens/GodownDispatchScreen';
 import DailyReportScreen from '../screens/DailyReportScreen';
+import VendorBills from '../screens/VendorBills';
+import BankDepositScreen from '../screens/BankDepositScreen';
+import WasteTrackingScreen from '../screens/WasteTrackingScreen';
+import PayrollScreen from '../screens/PayrollScreen';
+import ChecklistTemplatesScreen from '../screens/ChecklistTemplatesScreen';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -47,8 +53,14 @@ export type RootStackParamList = {
   Reports: undefined;
   Notifications: undefined;
   Profile: undefined;
+  PettyCash: undefined;
   GodownDispatchScreen: { user?: any };
   DailyReportScreen: { outletId: number, date: string };
+  VendorBills: undefined;
+  BankDepositScreen: undefined;
+  WasteTrackingScreen: undefined;
+  PayrollScreen: undefined;
+  ChecklistTemplatesScreen: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -83,8 +95,14 @@ export default function AppNavigator() {
       <Stack.Screen name="Reports" component={Reports} />
       <Stack.Screen name="Notifications" component={Notifications} />
       <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="PettyCash" component={PettyCash} />
       <Stack.Screen name="GodownDispatchScreen" component={GodownDispatchScreen} />
       <Stack.Screen name="DailyReportScreen" component={DailyReportScreen} />
+      <Stack.Screen name="VendorBills" component={VendorBills} />
+      <Stack.Screen name="BankDepositScreen" component={BankDepositScreen} />
+      <Stack.Screen name="WasteTrackingScreen" component={WasteTrackingScreen} />
+      <Stack.Screen name="PayrollScreen" component={PayrollScreen} />
+      <Stack.Screen name="ChecklistTemplatesScreen" component={ChecklistTemplatesScreen} />
     </Stack.Navigator>
   );
 }

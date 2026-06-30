@@ -96,6 +96,7 @@ export default function Icon({ name, color = '#146e4e', size = 20 }: IconProps) 
             <Path d="M10 9H8" stroke={color} strokeWidth="2" />
           </>
         );
+      case 'cash':
       case 'expense':
       case 'dollar':
       case 'rupee':
@@ -216,6 +217,61 @@ export default function Icon({ name, color = '#146e4e', size = 20 }: IconProps) 
           <>
             <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2" fill="none" />
             <Polyline points="12 6 12 12 16 14" stroke={color} strokeWidth="2" fill="none" />
+          </>
+        );
+      case 'close':
+      case 'x':
+        return (
+          <>
+            <Line x1="18" y1="6" x2="6" y2="18" stroke={color} strokeWidth="2" strokeLinecap="round" />
+            <Line x1="6" y1="6" x2="18" y2="18" stroke={color} strokeWidth="2" strokeLinecap="round" />
+          </>
+        );
+      case 'arrow-left':
+      case 'back':
+        return (
+          <>
+            <Path d="M19 12H5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <Polyline points="12 19 5 12 12 5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        );
+      case 'share-2':
+      case 'share':
+        return (
+          <>
+            <Circle cx="18" cy="5" r="3" stroke={color} strokeWidth="2" fill="none" />
+            <Circle cx="6" cy="12" r="3" stroke={color} strokeWidth="2" fill="none" />
+            <Circle cx="18" cy="19" r="3" stroke={color} strokeWidth="2" fill="none" />
+            <Line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke={color} strokeWidth="2" />
+            <Line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke={color} strokeWidth="2" />
+          </>
+        );
+      case 'dollar-sign':
+        return (
+          <>
+            <Path d="M12 1v22" stroke={color} strokeWidth="2" strokeLinecap="round" />
+            <Path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        );
+      case 'trending-up':
+        return (
+          <>
+            <Polyline points="23 6 13.5 15.5 8.5 10.5 1 18" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <Polyline points="17 6 23 6 23 12" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          </>
+        );
+      case 'trending-down':
+        return (
+          <>
+            <Polyline points="23 18 13.5 8.5 8.5 13.5 1 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <Polyline points="17 18 23 18 23 12" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          </>
+        );
+      case 'check-square':
+        return (
+          <>
+            <Path d="M9 11l3 3L22 4" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </>
         );
       case 'phone':

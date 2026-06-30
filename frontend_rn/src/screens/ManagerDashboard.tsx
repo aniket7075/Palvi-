@@ -175,6 +175,43 @@ export default function ManagerDashboard({ navigation }: Props) {
             </View>
             <Text style={styles.actionText}>Checklist</Text>
           </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Attendance')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#e8f5e9' }]}>
+              <Icon name="attendance" color="#146e4e" size={24} />
+            </View>
+            <Text style={styles.actionText}>Attendance</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('VendorOrders')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#fcf4f0' }]}>
+              <Icon name="truck" color="#8c6e65" size={24} />
+            </View>
+            <Text style={styles.actionText}>Orders</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Inventory')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#e8f5e9' }]}>
+              <Icon name="inventory" color="#146e4e" size={24} />
+            </View>
+            <Text style={styles.actionText}>Inventory</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('Reports')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#fcf4f0' }]}>
+              <Icon name="reports" color="#8c6e65" size={24} />
+            </View>
+            <Text style={styles.actionText}>Reports</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('BankDepositScreen')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#e8f5e9' }]}>
+              <Icon name="sales" color="#146e4e" size={24} />
+            </View>
+            <Text style={styles.actionText}>Bank Deposits</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionItem} activeOpacity={0.8} onPress={() => navigation.navigate('WasteTrackingScreen')}>
+            <View style={[styles.actionIconBg, { backgroundColor: '#fcf4f0' }]}>
+              <Icon name="alert" color="#8c6e65" size={24} />
+            </View>
+            <Text style={styles.actionText}>Wastage</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Progress Card */}
@@ -290,16 +327,16 @@ const styles = StyleSheet.create({
   branchHeader: {
     backgroundColor: '#146e4e',
     paddingTop: 30,
-    paddingBottom: 40,
+    paddingBottom: 35,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    marginBottom: -20,
-    shadowColor: '#146e4e',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    marginBottom: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
     zIndex: 10,
   },
   headerContent: {
@@ -314,7 +351,8 @@ const styles = StyleSheet.create({
   branchSubtitle: {
     fontSize: 13,
     color: '#e8f5e9',
-    fontWeight: '500',
+    fontWeight: '600',
+    opacity: 0.9,
   },
   kpiRow: {
     flexDirection: 'row',
@@ -381,13 +419,16 @@ const styles = StyleSheet.create({
   },
   quickActionsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    gap: 12,
     marginBottom: 24,
-    paddingHorizontal: 4,
+    paddingHorizontal: 12,
   },
   actionItem: {
     alignItems: 'center',
-    width: '22%',
+    width: '21%',
+    marginBottom: 16,
   },
   actionIconBg: {
     width: 56,

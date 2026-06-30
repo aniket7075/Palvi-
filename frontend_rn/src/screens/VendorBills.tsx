@@ -10,6 +10,9 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { stateService } from '../services/stateService';
 import LayoutWrapper from '../components/LayoutWrapper';
+import { API_BASE_URL } from '../api';
+
+const BASE_URL = API_BASE_URL.replace('/api', '');
 
 export default function VendorBills() {
   const [bills, setBills] = useState<any[]>([]);
@@ -60,7 +63,7 @@ export default function VendorBills() {
               
               <View style={styles.imageContainer}>
                 <Image 
-                  source={{ uri: `http://localhost:8080${bill.imagePath}` }} 
+                  source={{ uri: `${BASE_URL}${bill.imagePath}` }} 
                   style={styles.billImage} 
                   resizeMode="contain"
                 />
