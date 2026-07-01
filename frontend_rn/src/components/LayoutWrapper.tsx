@@ -222,20 +222,9 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
         </View>
         
         <View style={styles.headerRight}>
-          <TouchableOpacity 
-            style={[styles.langToggleBtn, { backgroundColor: theme.surface, borderColor: theme.border, marginRight: 8 }]} 
-            onPress={toggleTheme}
-          >
-            <Text style={[styles.langToggleText, { color: theme.primary }]}>{isDark ? '☀️' : '🌙'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.langToggleBtn, { backgroundColor: theme.surface, borderColor: theme.border }]} 
-            onPress={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-          >
-            <Text style={[styles.langToggleText, { color: theme.primary }]}>{language === 'en' ? 'अ' : 'A'}</Text>
-          </TouchableOpacity>
-          <View style={[styles.roleBadge, { backgroundColor: isDark ? theme.border : '#ebdcd3' }]}>
-            <Text style={[styles.roleBadgeText, { color: theme.text }]} numberOfLines={1} ellipsizeMode="tail">
+          <View style={[styles.roleBadge, { backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(20, 110, 78, 0.1)' }]}>
+            <Icon name={role === 'ADMIN' ? 'profile' : 'outlet'} color={theme.primary} size={12} />
+            <Text style={[styles.roleBadgeText, { color: theme.primary, marginLeft: 4 }]} numberOfLines={1} ellipsizeMode="tail">
               {role === 'ADMIN' ? 'Admin HQ' : (outletName || 'Manager')}
             </Text>
           </View>
@@ -340,6 +329,39 @@ export default function LayoutWrapper({ children, title }: LayoutWrapperProps) {
 
               <View style={[styles.drawerDivider, { backgroundColor: theme.border }]} />
 
+              {/* Preferences Section */}
+              <View style={styles.prefsContainer}>
+                <Text style={[styles.prefsTitle, { color: theme.textSecondary }]}>
+                  {language === 'en' ? 'APP SETTINGS' : 'अॅप सेटिंग्ज'}
+                </Text>
+                
+                <View style={styles.prefsRow}>
+                  {/* Theme Toggle */}
+                  <TouchableOpacity 
+                    style={[styles.prefBtn, { backgroundColor: theme.surface, borderColor: theme.border }]} 
+                    onPress={toggleTheme}
+                  >
+                    <Text style={styles.prefEmoji}>{isDark ? '☀️' : '🌙'}</Text>
+                    <Text style={[styles.prefBtnText, { color: theme.text }]}>
+                      {isDark ? 'Light' : 'Dark'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Language Toggle */}
+                  <TouchableOpacity 
+                    style={[styles.prefBtn, { backgroundColor: theme.surface, borderColor: theme.border }]} 
+                    onPress={() => setLanguage(language === 'en' ? 'mr' : 'en')}
+                  >
+                    <Text style={styles.prefEmoji}>🌐</Text>
+                    <Text style={[styles.prefBtnText, { color: theme.text }]}>
+                      {language === 'en' ? 'मराठी' : 'English'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={[styles.drawerDivider, { backgroundColor: theme.border }]} />
+
               {/* Drawer Logout */}
               <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                 <View style={styles.drawerItemIconContainer}>
@@ -397,13 +419,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   roleBadge: {
-    backgroundColor: '#fdfbfa',
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ebdcd3',
-    paddingHorizontal: 10,
+    borderColor: 'transparent',
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 8,
-    maxWidth: 130,
+    borderRadius: 12,
+    maxWidth: 140,
     justifyContent: 'center',
   },
   roleBadgeText: {
@@ -590,19 +613,38 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#0d4e37',
   },
-  langToggleBtn: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginRight: 12,
-    borderWidth: 1,
-    borderColor: '#ebdcd3',
-    borderRadius: 6,
-    backgroundColor: '#fdfbfa',
+  prefsContainer: {
+    paddingHorizontal: 16,
+    marginVertical: 12,
   },
-  langToggleText: {
+  prefsTitle: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1.5,
+    marginBottom: 10,
+    textTransform: 'uppercase',
+  },
+  prefsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  prefBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  prefEmoji: {
     fontSize: 14,
+    marginRight: 6,
+  },
+  prefBtnText: {
+    fontSize: 12,
     fontWeight: '800',
-    color: '#146e4e',
   },
   versionContainer: {
     alignItems: 'center',

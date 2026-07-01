@@ -410,7 +410,7 @@ export default function AdminDashboard() {
                     <Text style={styles.statLabel}>Total Sales</Text>
                     <Text style={styles.statValue}>₹{outlet.sales.toLocaleString('en-IN')}</Text>
                     <View style={styles.outletShareContainer}>
-                      <View style={styles.progressBarBg}>
+                      <View style={[styles.progressBarBg, { flex: 1 }]}>
                         <View style={[styles.progressBarFill, { width: `${share}%`, backgroundColor: '#a67c6d' }]} />
                       </View>
                       <Text style={styles.shareText}>{share}% share</Text>

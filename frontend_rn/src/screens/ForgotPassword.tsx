@@ -13,6 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import api from '../api';
 
 type ForgotPasswordProp = StackNavigationProp<RootStackParamList, 'ForgotPassword'>;
 
@@ -35,19 +36,19 @@ export default function ForgotPassword({ navigation }: Props) {
     setSuccess('');
     setLoading(true);
 
-    setTimeout(async () => {
-      const trimmedEmail = email.trim().toLowerCase();
-      if (trimmedEmail === 'admin@gmail.com' || trimmedEmail === 'manager@gmail.com') {
-        setSuccess('OTP verification code sent to your email.');
-        await AsyncStorage.setItem('reset_email', trimmedEmail);
-        setTimeout(() => {
-          navigation.navigate('OtpVerification');
-        }, 1200);
-      } else {
-        setError('This email address is not registered.');
-        setLoading(false);
-      }
-    }, 1000);
+    const trimmedEmail = email.trim().toLowerCase();
+    try {
+      await api.post('/auth/forgot-password', { email: trimmedEmail });
+      setSuccess('OTP verification code sent to your email.');
+      await AsyncStorage.setItem('reset_email', trimmedEmail);
+      setTimeout(() => {
+        navigation.navigate('OtpVerification');
+      }, 1200);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data || 'Failed to send OTP.';
+      setError(typeof msg === 'string' ? msg : 'Failed to send OTP.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -159,15 +160,15 @@ const styles = StyleSheet.create({
   },
   errorAlert: {
     width: '100%',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#fef2f2',
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: '#fca5a5',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: '#0d4e37',
+    color: '#d32f2f',
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',

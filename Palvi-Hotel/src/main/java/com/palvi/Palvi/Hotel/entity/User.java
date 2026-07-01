@@ -42,6 +42,9 @@ public class User {
     @Builder.Default
     private boolean active = true;
 
+    private String otpCode;
+    private LocalDateTime otpExpiry;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

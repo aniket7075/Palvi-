@@ -13,6 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import api from '../api';
 
 type ResetPasswordProp = StackNavigationProp<RootStackParamList, 'ResetPassword'>;
 
@@ -52,32 +53,29 @@ export default function ResetPassword({ navigation }: Props) {
 
     setLoading(true);
 
-    setTimeout(async () => {
-      try {
-        const usersJson = await AsyncStorage.getItem('palvi_users');
-        const users = JSON.parse(usersJson || '[]');
-        const updatedUsers = users.map((u: any) => {
-          if (u.email.toLowerCase() === resetEmail.toLowerCase()) {
-            return { ...u, password };
-          }
-          return u;
+    try {
+      const code = await AsyncStorage.getItem('reset_token');
+      await api.post('/auth/reset-password', {
+        email: resetEmail,
+        token: code || '',
+        newPassword: password
+      });
+
+      setSuccess('Password reset successfully! Redirecting to login...');
+      await AsyncStorage.removeItem('reset_email');
+      await AsyncStorage.removeItem('reset_token');
+
+      setTimeout(() => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
         });
-        await AsyncStorage.setItem('palvi_users', JSON.stringify(updatedUsers));
-
-        setSuccess('Password reset successfully! Redirecting to login...');
-        await AsyncStorage.removeItem('reset_email');
-
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-        }, 1500);
-      } catch (err) {
-        setError('Error updating password.');
-        setLoading(false);
-      }
-    }, 1000);
+      }, 1500);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data || 'Failed to update password.';
+      setError(typeof msg === 'string' ? msg : 'Failed to update password.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -185,15 +183,15 @@ const styles = StyleSheet.create({
   },
   errorAlert: {
     width: '100%',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#fef2f2',
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: '#fca5a5',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: '#0d4e37',
+    color: '#d32f2f',
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',

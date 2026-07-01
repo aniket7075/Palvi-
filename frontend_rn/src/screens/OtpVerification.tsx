@@ -13,6 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import api from '../api';
 
 type OtpVerificationProp = StackNavigationProp<RootStackParamList, 'OtpVerification'>;
 
@@ -85,25 +86,34 @@ export default function OtpVerification({ navigation }: Props) {
 
     setLoading(true);
 
-    setTimeout(() => {
-      if (code === '1234' || code === '0000' || code === '9999' || code === '1111') {
-        setSuccess('Code verified successfully.');
-        setTimeout(() => {
-          navigation.navigate('ResetPassword');
-        }, 1000);
-      } else {
-        setError('Incorrect verification code. Use code "1234" to test.');
-        setLoading(false);
-      }
-    }, 1000);
+    try {
+      await api.post('/auth/verify-otp', { email: resetEmail, token: code });
+      await AsyncStorage.setItem('reset_token', code);
+      setSuccess('Code verified successfully.');
+      setTimeout(() => {
+        navigation.navigate('ResetPassword');
+      }, 1000);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data || 'Incorrect verification code.';
+      setError(typeof msg === 'string' ? msg : 'Incorrect verification code.');
+      setLoading(false);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setOtp(['', '', '', '']);
     setTimer(59);
     setError('');
-    setSuccess('A new verification code has been sent.');
-    inputs[0].current?.focus();
+    setSuccess('');
+
+    try {
+      await api.post('/auth/forgot-password', { email: resetEmail });
+      setSuccess('A new verification code has been sent.');
+      inputs[0].current?.focus();
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data || 'Failed to resend code.';
+      setError(typeof msg === 'string' ? msg : 'Failed to resend code.');
+    }
   };
 
   return (
@@ -238,15 +248,15 @@ const styles = StyleSheet.create({
   },
   errorAlert: {
     width: '100%',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#fef2f2',
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: '#fca5a5',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: '#0d4e37',
+    color: '#d32f2f',
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',

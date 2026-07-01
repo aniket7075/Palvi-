@@ -7,6 +7,8 @@ import com.palvi.Palvi.Hotel.exception.ResourceNotFoundException;
 import com.palvi.Palvi.Hotel.repository.UserRepository;
 import com.palvi.Palvi.Hotel.security.JwtTokenProvider;
 import com.palvi.Palvi.Hotel.service.AuthService;
+import com.palvi.Palvi.Hotel.service.EmailService;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +31,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public AuthResponse login(AuthRequest request) {
@@ -59,11 +64,34 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
         
-        // Log simulation token for testing:
+        // Generate random 4-digit OTP (between 1000 and 9999)
+        int randomPin = (int) (Math.random() * 9000) + 1000;
+        String otp = String.valueOf(randomPin);
+
+        user.setOtpCode(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+        userRepository.save(user);
+
+        emailService.sendOtpEmail(user.getEmail(), otp);
+
         System.out.println("----------------------------------------");
-        System.out.println("FORGOT PASSWORD CODE GENERATED FOR: " + user.getEmail());
-        System.out.println("USE CODE TOKEN: 1234");
+        System.out.println("FORGOT PASSWORD OTP SENT TO: " + user.getEmail());
+        System.out.println("OTP CODE: " + otp);
         System.out.println("----------------------------------------");
+    }
+
+    @Override
+    public void verifyOtp(VerifyOtpRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
+
+        if (user.getOtpCode() == null || !user.getOtpCode().equals(request.getToken())) {
+            throw new BadRequestException("Incorrect verification code.");
+        }
+
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Verification code has expired.");
+        }
     }
 
     @Override
@@ -71,11 +99,18 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
 
-        if (!"1234".equals(request.getToken())) {
-            throw new BadRequestException("Invalid reset token");
+        if (user.getOtpCode() == null || !user.getOtpCode().equals(request.getToken())) {
+            throw new BadRequestException("Incorrect verification code.");
+        }
+
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Verification code has expired.");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        // Clear OTP code and expiry
+        user.setOtpCode(null);
+        user.setOtpExpiry(null);
         userRepository.save(user);
     }
 

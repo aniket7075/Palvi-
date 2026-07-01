@@ -183,50 +183,71 @@ export default function Outlets() {
 
           {/* Outlets Listing */}
           <View style={styles.listContainer}>
-            {filteredOutlets.map((o) => (
-              <View key={o.id} style={[styles.outletCard, o.status === 'INACTIVE' && styles.inactiveCard]}>
-                {/* Card Top */}
-                <View style={styles.cardTop}>
-                  <View style={styles.cardIconWrap}>
-                    <Icon name="outlet" color="#146e4e" size={22} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.cardTitleRow}>
-                      <Text style={styles.cardTitle}>{o.name}</Text>
-                      <View style={[
-                        styles.statusBadge,
-                        o.status === 'INACTIVE' ? styles.inactiveBadge : styles.activeBadge
-                      ]}>
-                        <Text style={[
-                          styles.statusText,
-                          o.status === 'INACTIVE' ? styles.inactiveText : styles.activeText
+            {filteredOutlets.map((o) => {
+              // Find assigned manager for this outlet
+              const managers = stateService.getManagers() || [];
+              const manager = managers.find((m: any) => m.outletId === o.id);
+
+              return (
+                <View key={o.id} style={[styles.outletCard, o.status === 'INACTIVE' && styles.inactiveCard]}>
+                  {/* Card Top */}
+                  <View style={styles.cardTop}>
+                    <View style={styles.cardIconWrap}>
+                      <Icon name="outlet" color="#146e4e" size={22} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <View style={styles.cardTitleRow}>
+                        <Text style={styles.cardTitle}>{o.name}</Text>
+                        <View style={[
+                          styles.statusBadge,
+                          o.status === 'INACTIVE' ? styles.inactiveBadge : styles.activeBadge
                         ]}>
-                          {o.status === 'INACTIVE' ? 'Inactive' : 'Active'}
-                        </Text>
+                          <Text style={[
+                            styles.statusText,
+                            o.status === 'INACTIVE' ? styles.inactiveText : styles.activeText
+                          ]}>
+                            {o.status === 'INACTIVE' ? 'Inactive' : 'Active'}
+                          </Text>
+                        </View>
                       </View>
+                      <Text style={styles.cardAddress}>{o.address}, {o.city}</Text>
                     </View>
-                    <Text style={styles.cardAddress}>{o.address}, {o.city}</Text>
                   </View>
-                </View>
 
-                <View style={styles.cardDivider} />
+                  <View style={styles.cardDivider} />
 
-                {/* Card Footer */}
-                <View style={styles.cardFooter}>
-                  <View style={styles.cardInfoRow}>
-                    <View style={styles.cardInfoItem}>
-                      <Icon name="phone" color="#8c6e65" size={12} />
-                      <Text style={styles.cardPhone}>{o.mobileNumber}</Text>
+                  {/* Card Details */}
+                  <View style={styles.cardDetailsContainer}>
+                    {/* Contact Number */}
+                    <View style={styles.detailRow}>
+                      <Icon name="phone" color="#8c6e65" size={14} />
+                      <Text style={styles.detailTextLabel}>Contact: </Text>
+                      <Text style={styles.detailTextVal}>{o.mobileNumber}</Text>
                     </View>
+                    
+                    {/* Assigned Manager */}
+                    <View style={styles.detailRow}>
+                      <Icon name="profile" color="#8c6e65" size={14} />
+                      <Text style={styles.detailTextLabel}>Manager: </Text>
+                      <Text style={[styles.detailTextVal, { color: manager ? '#146e4e' : '#8c6e65', fontWeight: manager ? 'bold' : 'normal' }]}>
+                        {manager ? manager.fullName : 'Not Assigned'}
+                      </Text>
+                    </View>
+
+                    {/* GST Number */}
                     {o.gstNumber ? (
-                      <View style={styles.gstBadge}>
-                        <Text style={styles.gstText}>GST: {o.gstNumber}</Text>
+                      <View style={styles.detailRow}>
+                        <Icon name="purchase" color="#8c6e65" size={14} />
+                        <Text style={styles.detailTextLabel}>GSTIN: </Text>
+                        <Text style={styles.detailTextVal}>{o.gstNumber}</Text>
                       </View>
                     ) : null}
                   </View>
 
+                  <View style={styles.cardDivider} />
+
                   {/* Action Buttons */}
-                  <View style={styles.actionRow}>
+                  <View style={styles.cardFooterActions}>
                     <TouchableOpacity
                       style={styles.editBtn}
                       onPress={() => openEdit(o)}
@@ -238,13 +259,13 @@ export default function Outlets() {
                       style={styles.deleteBtn}
                       onPress={() => handleDelete(o)}
                     >
-                      <Icon name="delete" color="#0d4e37" size={13} />
+                      <Icon name="delete" color="#d32f2f" size={13} />
                       <Text style={styles.deleteBtnText}>Delete</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
 
             {filteredOutlets.length === 0 && (
               <View style={styles.emptyContainer}>
@@ -577,44 +598,33 @@ const styles = StyleSheet.create({
   },
   cardDivider: {
     height: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ebdcd3',
     marginHorizontal: 16,
   },
-  cardFooter: {
-    padding: 14,
-    paddingTop: 12,
+  cardDetailsContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
   },
-  cardInfoRow: {
+  detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
   },
-  cardInfoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  cardPhone: {
+  detailTextLabel: {
     fontSize: 12,
     color: '#8c6e65',
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  detailTextVal: {
+    fontSize: 12,
+    color: '#3d251e',
     fontWeight: '700',
+    flex: 1,
   },
-  gstBadge: {
-    backgroundColor: '#a67c6d',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  gstText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#ffffff',
-  },
-
-  // Edit / Delete action row
-  actionRow: {
+  cardFooterActions: {
     flexDirection: 'row',
+    padding: 12,
     gap: 10,
   },
   editBtn: {
@@ -638,9 +648,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#fef2f2',
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: '#fca5a5',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -649,7 +659,7 @@ const styles = StyleSheet.create({
   deleteBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0d4e37',
+    color: '#d32f2f',
   },
 
   // Empty state

@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 20, fontWeight: '900', color: '#ffffff' },
   managerInfo: { flex: 1 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  managerName: { fontSize: 15, fontWeight: '800', color: '#3d251e' },
+  managerName: { fontSize: 15, fontWeight: '800', color: '#3d251e', flex: 1, marginRight: 8 },
   roleBadge: { backgroundColor: '#fdfbfa', borderWidth: 1, borderColor: '#ebdcd3', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
   roleBadgeText: { fontSize: 9, fontWeight: '800', color: '#146e4e' },
   managerContact: { fontSize: 12, color: '#8c6e65', fontWeight: '600', marginBottom: 6 },
