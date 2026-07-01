@@ -6,6 +6,7 @@ import com.palvi.Palvi.Hotel.exception.ResourceNotFoundException;
 import com.palvi.Palvi.Hotel.mapper.NotificationMapper;
 import com.palvi.Palvi.Hotel.repository.NotificationRepository;
 import com.palvi.Palvi.Hotel.service.NotificationService;
+import com.palvi.Palvi.Hotel.service.FirebaseMessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private NotificationMapper notificationMapper;
 
+    @Autowired
+    private FirebaseMessagingService firebaseMessagingService;
+
     @Override
     public NotificationDto createNotification(String type, String title, String message) {
         Notification notification = Notification.builder()
@@ -34,7 +38,35 @@ public class NotificationServiceImpl implements NotificationService {
                 .createdAt(LocalDateTime.now())
                 .build();
         Notification saved = notificationRepository.save(notification);
+
+        try {
+            String topic = determineTopic(type);
+            firebaseMessagingService.sendNotificationToTopic(topic, title, message);
+        } catch (Exception e) {
+            System.err.println("FCM Notification delivery failed: " + e.getMessage());
+        }
+
         return notificationMapper.toDto(saved);
+    }
+
+    private String determineTopic(String type) {
+        if (type == null) return "admin";
+        switch (type.toUpperCase()) {
+            case "LOW_STOCK":
+            case "MISSING_ATTENDANCE":
+            case "PENDING_CHECKLIST":
+            case "DAILY_SALES":
+            case "NEW_REQUIREMENT":
+            case "NEW_PETTY_CASH_REQUEST":
+            case "NEW_BANK_DEPOSIT":
+                return "admin";
+            case "REQUIREMENT_AUDIT":
+            case "PETTY_CASH_AUDIT":
+            case "BANK_DEPOSIT_AUDIT":
+                return "manager";
+            default:
+                return "admin";
+        }
     }
 
     @Override

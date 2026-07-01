@@ -28,10 +28,17 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Forgot Password Request", description = "Generates a password reset request and outputs code to system logs")
+    @Operation(summary = "Forgot Password Request", description = "Generates a password reset request and sends a code to the user's email")
     public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         authService.forgotPassword(request);
-        return ResponseEntity.ok("Password reset code sent to your email. Check system logs for code token.");
+        return ResponseEntity.ok("Password reset code sent to your email.");
+    }
+
+    @PostMapping("/verify-otp")
+    @Operation(summary = "Verify OTP Code", description = "Verifies if the OTP/reset token is valid and not expired")
+    public ResponseEntity<String> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        authService.verifyOtp(request);
+        return ResponseEntity.ok("OTP verified successfully.");
     }
 
     @PostMapping("/reset-password")

@@ -4,16 +4,16 @@ WORKDIR /app
 
 COPY . .
 
-RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
-
-RUN ./mvnw dependency:go-offline
-RUN ./mvnw clean package -DskipTests
+# Run maven wrapper build inside the complete Palvi-Hotel project folder
+RUN sed -i 's/\r$//' Palvi-Hotel/mvnw && chmod +x Palvi-Hotel/mvnw
+RUN cd Palvi-Hotel && ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.war app.war
+# Copy the compiled war package from Palvi-Hotel's target folder
+COPY --from=build /app/Palvi-Hotel/target/*.war app.war
 
 EXPOSE 8080
 

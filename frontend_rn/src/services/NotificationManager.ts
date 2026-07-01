@@ -37,7 +37,11 @@ class NotificationManager {
    * Initialize notification listeners (foreground and token refresh)
    */
   initialize() {
-    this.requestUserPermission();
+    this.requestUserPermission().then(granted => {
+      if (granted) {
+        this.getFCMToken();
+      }
+    });
 
     // Listen to token refresh
     messaging().onTokenRefresh(token => {

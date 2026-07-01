@@ -13,5 +13,6 @@ public class PalviHotelApplication {
 
 		SpringApplication.run(PalviHotelApplication.class, args);
 		System.out.println("Start, Running on port 8080");
+
 	}
 }

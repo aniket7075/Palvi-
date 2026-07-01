@@ -33,6 +33,9 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getUnreadNotifications());
     }
 
+    @Autowired
+    private com.palvi.Palvi.Hotel.service.FirebaseMessagingService firebaseMessagingService;
+
     @PutMapping("/{id}/read")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Mark Notification as Read", description = "Dismisses an alert by marking it read.")
@@ -46,5 +49,15 @@ public class NotificationController {
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         notificationService.deleteNotification(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/test-fcm")
+    @Operation(summary = "Send Test FCM Push Notification", description = "Dispatches a manual test push notification to a specific topic.")
+    public ResponseEntity<String> sendTestFcm(
+            @RequestParam String topic,
+            @RequestParam String title,
+            @RequestParam String body) {
+        firebaseMessagingService.sendNotificationToTopic(topic, title, body);
+        return ResponseEntity.ok("Test notification request dispatched to topic: " + topic);
     }
 }

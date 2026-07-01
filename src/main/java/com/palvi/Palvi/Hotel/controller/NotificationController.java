@@ -20,31 +20,44 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get All Notifications", description = "Retrieves all notifications ordered by creation date.")
     public ResponseEntity<List<NotificationDto>> getAllNotifications() {
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
     @GetMapping("/unread")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Get Unread Notifications", description = "Retrieves unread notifications list.")
     public ResponseEntity<List<NotificationDto>> getUnreadNotifications() {
         return ResponseEntity.ok(notificationService.getUnreadNotifications());
     }
 
+    @Autowired
+    private com.palvi.Palvi.Hotel.service.FirebaseMessagingService firebaseMessagingService;
+
     @PutMapping("/{id}/read")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Mark Notification as Read", description = "Dismisses an alert by marking it read.")
     public ResponseEntity<NotificationDto> markAsRead(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.markAsRead(id));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'FRANCHISEE', 'INVENTORY_MANAGER')")
     @Operation(summary = "Delete Notification", description = "Removes a notification record.")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         notificationService.deleteNotification(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/test-fcm")
+    @Operation(summary = "Send Test FCM Push Notification", description = "Dispatches a manual test push notification to a specific topic.")
+    public ResponseEntity<String> sendTestFcm(
+            @RequestParam String topic,
+            @RequestParam String title,
+            @RequestParam String body) {
+        firebaseMessagingService.sendNotificationToTopic(topic, title, body);
+        return ResponseEntity.ok("Test notification request dispatched to topic: " + topic);
     }
 }
