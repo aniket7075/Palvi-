@@ -1,6 +1,11 @@
 package com.palvi.Palvi.Hotel.controller;
 
-import com.palvi.Palvi.Hotel.dto.*;
+import com.palvi.Palvi.Hotel.dto.AuthRequest;
+import com.palvi.Palvi.Hotel.dto.AuthResponse;
+import com.palvi.Palvi.Hotel.dto.ChangePasswordRequest;
+import com.palvi.Palvi.Hotel.dto.ForgotPasswordRequest;
+import com.palvi.Palvi.Hotel.dto.ResetPasswordRequest;
+import com.palvi.Palvi.Hotel.dto.VerifyOtpRequest;
 import com.palvi.Palvi.Hotel.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
